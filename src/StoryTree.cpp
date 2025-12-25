@@ -1,15 +1,31 @@
 #include "StoryTree.h"
+#include "TextSettings.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
 
 using namespace std;
 
+TextSettings textSettings;
+
 void typeText(const string& text, int delayMs = 25) {
+    cout << textSettings.color;
+
+    if (textSettings.skipTyping) {
+        cout << text << RESET << "\n";
+        return;
+    }
+
     for (char c : text) {
         cout << c << flush;
         this_thread::sleep_for(chrono::milliseconds(delayMs));
+        if (cin.rdbuf()->in_avail() > 0) {
+            cin.get();
+            cout << text.substr(&c - &text[0] + 1);
+            break;
+        }
     }
+
     cout << "\n";
 }
 
@@ -149,8 +165,6 @@ StoryNode* StoryTree::buildStory() {
         "DUNIA MENDENGARKAN SUARAMU.",
         "Mencari Benteng Beku",
         "Mengikuti bisikan angin",
-        "Seek the soldiers",
-        "Follow the whispers",
     };
 
     start->left = order;
