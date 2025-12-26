@@ -6,12 +6,14 @@
 
 struct StoryNode {
     std::string text;
-
     std::string choiceA;
     std::string choiceB;
 
-    StoryNode* left = nullptr;
-    StoryNode* right = nullptr;
+    StoryNode* left;
+    StoryNode* right;
+
+    bool hasBattle;
+    int enemyType;
 
     std::function<void(GameState&)> effect;
     std::function<bool(const GameState&)> condition;
