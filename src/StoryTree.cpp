@@ -9,7 +9,7 @@ using namespace std;
 
 TextSettings textSettings;
 
-void typeText(const string& text, int delayMs = 25) {
+void typeText(const string& text, int delayMs) {
     cout << textSettings.color;
 
     if (textSettings.skipTyping) {

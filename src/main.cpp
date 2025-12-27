@@ -1,4 +1,5 @@
 #include "StoryTree.h"
+#include "BattleSystem.cpp"
 #include "StoryTree.cpp"
 #include <iostream>
 
