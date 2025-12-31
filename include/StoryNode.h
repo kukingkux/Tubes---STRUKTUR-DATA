@@ -15,15 +15,6 @@ struct StoryNode {
     int enemyType; // 0 none, 1 cultist, 2 inquisitor, 3 dragon
 
     bool isEnding = false;
-
-    StoryNode(
-        std::string text,
-        std::string choiceA,
-        std::string choiceB,
-        StoryNode* left,
-        StoryNode* right,
-        bool isEnding
-    );
 };
 
 #endif

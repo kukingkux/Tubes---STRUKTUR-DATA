@@ -57,11 +57,9 @@ void showMainMenu() {
 }
 
 int main() {
-    GameState state;
-
     showMainMenu();
 
-    StoryTree story(state);
+    StoryTree story;
     story.start();
 
     std::cout << "\nTerima kasih udah main :D\n";

@@ -5,12 +5,11 @@
 
 class StoryTree {
 public:
-    StoryTree(GameState& gameState);
+    StoryTree();
     void start();
 
 private:
     StoryNode* root;
-    GameState& state;
     
     void runNode(StoryNode* node);
     StoryNode* buildStory();

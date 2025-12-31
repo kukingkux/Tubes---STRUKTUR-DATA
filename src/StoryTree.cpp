@@ -31,6 +31,10 @@ void typeText(const string& text, int delayMs) {
     cout << "\n";
 }
 
+StoryTree::StoryTree() {
+    root = buildStory();
+}
+
 void StoryTree::start() {
     runNode(root);
 }
@@ -88,7 +92,7 @@ void StoryTree::runNode(StoryNode* node) {
 
 StoryNode* StoryTree::buildStory() {
     // === ENDINGS ===
-    auto orderEnding = new StoryNode (
+    auto orderEnding = new StoryNode {
         "ENDING: ORDER\n\n"
         "Dengan kekuatan suara naga, kamu memburu mereka satu per satu.\n"
         "Langit kembali sunyi.\n"
@@ -97,9 +101,9 @@ StoryNode* StoryTree::buildStory() {
         "Namun keajaiban mati bersamanya.\n\n"
         "Sejarah mengingatmu sebagai pembasmi legenda.",
         "", "", nullptr, nullptr, true
-    );
+    };
 
-    auto chaosEnding = new StoryNode (
+    auto chaosEnding = new StoryNode {
         "ENDING: CHAOS\n\n"
         "Kamu memilih takdir kehancuran.\n"
         "Naga kembali menguasai langit.\n\n"
@@ -107,9 +111,9 @@ StoryNode* StoryTree::buildStory() {
         "Api dan teriakan memenuhi dunia.\n\n"
         "Kamu dikenang sebagai pembawa akhir zaman.",
         "", "", nullptr, nullptr, true
-    );
+    };
 
-    auto balanceEnding = new StoryNode (
+    auto balanceEnding = new StoryNode {
         "ENDING: BALANCE\n\n"
         "Tidak semua legenda harus mati.\n"
         "Sebagian naga tertidur.\n"
@@ -118,10 +122,10 @@ StoryNode* StoryTree::buildStory() {
         "Sejarah tidak mencatat namamu.\n\n"
         "Namun dunia tetap berputar.",
         "", "", nullptr, nullptr, true
-    );
+    };
 
     // === DRAGON DECISION ===
-    auto dragonDecision = new StoryNode (
+    auto dragonDecision = new StoryNode {
         "PUNCAK BATU\n\n"
         "Angin gunung menusuk tulang.\n"
         "Reruntuhan candi kuno berdiri di hadapanmu.\n\n"
@@ -135,9 +139,9 @@ StoryNode* StoryTree::buildStory() {
         orderEnding,
         balanceEnding,
         false
-    );
+    };
 
-    auto dragonChaos = new StoryNode (
+    auto dragonChaos = new StoryNode {
         "Kata-kata naga meresap ke dalam dirimu.\n"
         "Kamu bisa merasakan kekuatannya.\n\n"
         "Langit menggelap.\n"
@@ -147,12 +151,12 @@ StoryNode* StoryTree::buildStory() {
         chaosEnding,
         balanceEnding,
         false
-    );
+    };
 
     dragonDecision->right = dragonChaos;
 
     // === INQUISITOR === 
-    auto inquisitor = new StoryNode (
+    auto inquisitor = new StoryNode {
         "DESA TERBAKAR\n\n"
         "Api melahap rumah-rumah kayu.\n"
         "Jeritan bercampur dengan suara baja.\n\n"
@@ -164,11 +168,11 @@ StoryNode* StoryTree::buildStory() {
         dragonDecision,
         dragonDecision,
         false
-    );
+    };
 
     // ===== CULTIST =====
 
-    auto cultist = new StoryNode (
+    auto cultist = new StoryNode {
         "HUTAN GELAP\n\n"
         "Di antara pepohonan pinus, seorang cultist melantunkan Words terlarang.\n\n"
         "Tanah bergetar pelan.\n"
@@ -179,10 +183,10 @@ StoryNode* StoryTree::buildStory() {
         inquisitor,
         inquisitor,
         false
-    );
+    };
 
     // === FACTIONS ===
-    auto rebels = new StoryNode (
+    auto rebels = new StoryNode {
         "KAMP BERDARAH\n\n"
         "Di hutan sunyi dekat tebing, para Pribumi berkumpul.\n"
         "Mereka hidup di luar hukum kerajaan.\n\n"
@@ -193,9 +197,9 @@ StoryNode* StoryTree::buildStory() {
         cultist,
         dragonDecision,
         false
-    );
+    };
 
-    auto scholars = new StoryNode (
+    auto scholars = new StoryNode {
         "BISIKAN AKBAR\n\n"
         "Para peneliti berkumpul di antara reruntuhan.\n"
         "Ukiran Words memenuhi dinding batu.\n\n"
@@ -206,9 +210,9 @@ StoryNode* StoryTree::buildStory() {
         cultist,
         rebels,
         false
-    );
+    };
 
-    auto order = new StoryNode (
+    auto order = new StoryNode {
         "BENTENG BEKU\n\n"
         "Benteng berdiri di perbatasan.\n"
         "Asap dapur, bau ikan asap, dan ketakutan memenuhi udara.\n\n"
@@ -219,10 +223,10 @@ StoryNode* StoryTree::buildStory() {
         cultist,
         scholars,
         false
-    );
+    };
 
     // === START ===
-    auto start = new StoryNode (
+    auto start = new StoryNode {
         "SKJORHEIM\n\n"
         "Negeri pegunungan dan hutan pinus.\n"
         "Sejarah tertidur di bawah es dan tanah yang mengingat darah.\n\n"
@@ -240,7 +244,7 @@ StoryNode* StoryTree::buildStory() {
         order,
         scholars,
         false
-    );
+    };
 
     return start;
 }
