@@ -7,7 +7,8 @@
 
 using namespace std;
 
-TextSettings textSettings;
+// Definition of the global variable declared in TextSettings.h
+TextSettingsStruct textSettings;
 
 void typeText(const string& text, int delayMs) {
     cout << textSettings.color;
@@ -20,8 +21,9 @@ void typeText(const string& text, int delayMs) {
     for (char c : text) {
         cout << c << flush;
         this_thread::sleep_for(chrono::milliseconds(textSettings.speedMs));
+        // Simple input check to skip typing
         if (cin.rdbuf()->in_avail() > 0) {
-            cin.get();
+            cin.ignore();
             cout << text.substr(&c - &text[0] + 1);
             break;
         }
@@ -49,6 +51,7 @@ void StoryTree::runNode(StoryNode* node) {
 
     if (node->hasBattle) {
         Battle enemy;
+        enemy.enemyType = node->enemyType;
 
         if (node->enemyType == 1) {
             enemy.enemyName = "Cultist";
@@ -56,25 +59,25 @@ void StoryTree::runNode(StoryNode* node) {
             enemy.enemyMinDmg = 5;
             enemy.enemyMaxDmg = 10;
         } else if (node->enemyType == 2) {
-            enemy.enemyName = "Bandit";
-            enemy.enemyHP = 45;
-            enemy.enemyMinDmg = 7;
-            enemy.enemyMaxDmg = 13;
+            enemy.enemyName = "Starving Wolf";
+            enemy.enemyHP = 25;
+            enemy.enemyMinDmg = 3;
+            enemy.enemyMaxDmg = 8;
         } else if (node->enemyType == 3) {
-            enemy.enemyName = "Dragon";
-            enemy.enemyHP = 80;
-            enemy.enemyMinDmg = 12;
-            enemy.enemyMaxDmg = 18;
+            enemy.enemyName = "Ancient Dragon";
+            enemy.enemyHP = 100;
+            enemy.enemyMinDmg = 10;
+            enemy.enemyMaxDmg = 20;
         }
 
         BattleResult result = startBattle(state.health, enemy);
 
         if (result == LOSE) {
-            typeText(RED "\nYou have been defeated by the Cultist...\n" RESET);
+            typeText(RED "\nYour vision fades to black...\n" RESET);
             cout << "\n=== GAME OVER ===\n";
-            return;
+            exit(0); // End game
         } else {
-            typeText(GREEN "\nYou defeated the " + enemy.enemyName + "!\n" RESET);
+            typeText(GREEN "\nVictory!\n" RESET);
         }
     }
 
@@ -88,16 +91,25 @@ void StoryTree::runNode(StoryNode* node) {
     }
 
     if (node->isEnding) {
-        cout << "\n=== TO BE CONTINUED. . . ===\n";
+        cout << "\n=== THE END ===\n";
         return;
     }
 
+    // Choice Display
     cout << "1. " << node->choiceA << "\n";
     cout << "2. " << node->choiceB << "\n";
     cout << "Choose: ";
 
     int choice;
     cin >> choice;
+
+    // Basic input validation
+    while(cin.fail() || (choice != 1 && choice != 2)) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Invalid choice. Try again: ";
+        cin >> choice;
+    }
 
     if (choice == 1) {
         runNode(node->left);
@@ -107,102 +119,177 @@ void StoryTree::runNode(StoryNode* node) {
 }
 
 StoryNode* StoryTree::buildStory() {
-    // === ENDINGS ===
-    auto orderEnding = new StoryNode {
-        "Skjorheim stands frozen in order. Dragons are hunted to extinction.\n\n""Dengan kekuatan suara naga, kamu memburu para naga satu per satu.\n"
-        "Langit kembali sunyi. Dunia aman, namun hampa.\n"
-        "Sejarah mengingatmu sebagai pembasmi legenda.","", "", nullptr, nullptr, true
-    };
+    // ==========================================
+    // ENDINGS
+    // ==========================================
 
-    auto chaosEnding = new StoryNode {
-        "Dragons rule the skies again. Civilization burns beneath prophecy.\n\n""Kamu memilih takdir kehancuran.\n"
-        "Para naga kembali menguasai langit.\n"
-        "Kerajaan runtuh, dan dunia terbakar dalam nyanyian kuno.\n"
-        "Kamu dikenang sebagai pembawa akhir zaman.", "", "", nullptr, nullptr, true
-    };
+    // Ending: ORDER
+    auto endingOrder = new StoryNode(
+        "THE SILENCE OF ORDER\n\n"
+        "With the Dragon slain, the world falls silent.\n"
+        "The Iron Vow hunts the remaining kin to extinction.\n"
+        "Safety is restored, but the magic has bled out of the world.\n\n"
+        "You are hailed as a hero. A butcher of legends.",
+        "", "", nullptr, nullptr, true
+    );
 
-    auto balanceEnding = new StoryNode {
-        "Some dragons sleep. Some watch. The world endures.\n\n""Tidak semua legenda harus mati.\n"
-        "Sebagian naga tertidur, sebagian mengawasi.\n"
-        "Manusia dan naga hidup dalam ketakutan dan harapan.\n"
-        "Sejarah tidak mencatat namamu, tapi dunia tetap berputar.", "", "", nullptr, nullptr, true
-    };
+    // Ending: CHAOS
+    auto endingChaos = new StoryNode(
+        "THE REIGN OF FIRE\n\n"
+        "The Dragon's roar shatters the mountain.\n"
+        "You stand aside as the flight descends upon the valley.\n"
+        "Civilization burns. The old world dies in ash.\n\n"
+        "From the ruins, a wild, untamed era begins.",
+        "", "", nullptr, nullptr, true
+    );
 
-    // === DRAGON DECISION ===
-    auto dragonChoice = new StoryNode {
-        "PUNCAK BATU\n\n"
-        "Angin gunung menusuk tulang.\n"
-        "Di atas reruntuhan candi kuno, seekor naga bangkit.\n"
-        "Bahasanya berat, setiap kata membuat dunia bergetar.\n\n"
-        "\"KAMU MENDENGAR SUARA KAMI.\"",
-        "Kill the dragon",
-        "Liten to the dragon",
-        nullptr,
-        [](const GameState& s){ return s.dragonAwakened; }
-    };
+    // Ending: BALANCE
+    auto endingBalance = new StoryNode(
+        "THE ETERNAL WATCH\n\n"
+        "The Dragon nods, a gesture of ancient respect.\n"
+        "It takes flight, disappearing into the clouds.\n"
+        "The Dragons will sleep, but they will not vanish.\n"
+        "The world remains on the brink, alive with danger and wonder.\n\n"
+        "You walk away, a guardian of the fragile peace.",
+        "", "", nullptr, nullptr, true
+    );
 
-    dragonChoice->left = orderEnding;
-    dragonChoice->right = balanceEnding;
+    // ==========================================
+    // CLIMAX: DRAGON
+    // ==========================================
 
-    // === FACTIONS ===
-    auto rebels = new StoryNode {
-        "KAMP BERDARAH\n\n""Di hutan sunyi dekat tebing, para Pribumi berkumpul.\n"
-        "Mereka percaya naga harus kembali untuk memenuhi takdir dunia.\n\n"
-        "\"KEHANCURAN ADALAH PEMBAHARUAN,\" kata mereka.",
-        "Help them",
-        "Refuse",
-        [](GameState& s){ s.chaos += 3; s.helpedRebels = true; }
-    };
+    // Battle Node: Dragon Fight
+    auto dragonBattleNode = new StoryNode(
+        "THE SKY TEARS OPEN\n\n"
+        "You draw your weapon. The Dragon laughs—a sound like crumbling mountains.\n"
+        "\"THEN DIE, LITTLE MOTE.\"\n"
+        "Flames engulf the peak.",
+        "Continue", "Continue", nullptr, nullptr, false // Battle handled by logic below
+    );
+    dragonBattleNode->hasBattle = true;
+    dragonBattleNode->enemyType = 3;
+    dragonBattleNode->left = endingOrder; // If win (lose handles game over)
+    dragonBattleNode->right = endingOrder; // Redundant
 
-    rebels->left = chaosEnding;
-    rebels->left = dragonChoice;
+    // Choice Node: The Final Decision
+    auto dragonChoice = new StoryNode(
+        "THE DRAGON'S GAZE\n\n"
+        "\"WE ARE THE ANCHORS OF THIS WORLD,\" the Dragon speaks.\n"
+        "\"KILL ME, AND YOU KILL THE MAGIC THAT BINDS REALITY.\"\n"
+        "\"JOIN ME, AND BURN THE ROTTEN CITIES.\"\n"
+        "\"OR LEAVE, AND LET FATE SPIN ITS THREAD.\"",
+        "Challenge the Dragon (ORDER)",
+        "Listen to the Dragon (CHAOS/BALANCE)",
+        nullptr, nullptr, false
+    );
 
-    auto scholars = new StoryNode {
-        "Bisikan Akbar offers forbidden dragon knowledge.\n\n""Para ilmuwan dan peneliti mengumpulkan ukiran kuno.\n"
-        "Mereka memburu rahasia Words of Power.\n\n"
-        "\"PENGETAHUAN ADALAH KEKUATAN,\" kata mereka.",
-        "Study the Words",
-        "Reject the forbidden knowledge",
-        [](GameState& s){ s.knowledge += 2; s.joinedScholars = true; }
-    };
+    // Logic for Dragon Choice
+    dragonChoice->left = dragonBattleNode;
 
-    scholars->left = dragonChoice;
-    scholars->right = rebels;
+    // If listen, check alignment
+    auto listenBranch = new StoryNode(
+        "You sheath your weapon. The Dragon lowers its head, eyes narrowing.",
+        "Accept the Chaos",
+        "Seek Balance",
+        nullptr, nullptr, false
+    );
 
-    auto order = new StoryNode {
-        "SUMPAH BESI\n\n"
-        "Para prajurit kerajaan berdiri tegar.\n"
-        "Mereka percaya dunia hanya aman jika naga punah.\n\n"
-        "\"TATANAN HARUS DIJAGA,\" kata mereka.",
-        "Join them",
-        "Refuse",
-        [](GameState& s){ s.order += 2; s.joinedOrder = true; }
-    };
+    listenBranch->left = endingChaos;
+    listenBranch->right = endingBalance;
 
-    order->left = dragonChoice;
-    order->right = scholars;
+    dragonChoice->right = listenBranch;
 
-    // === START ===
-    auto start = new StoryNode{
+    // Introduction to Dragon (Narrative)
+    auto dragonIntro = new StoryNode(
+        "THE PEAK OF STORMS\n\n"
+        "You reach the summit. The air is thin and tastes of ozone.\n"
+        "Amongst the ruins, a shadow moves. Not a cloud, but something solid.\n"
+        "Scales of obsidian. Eyes like molten gold.\n\n"
+        "\"YOU HAVE COME FAR, MORTAL.\"",
+        "Step forward",
+        "Hold your ground",
+        nullptr, nullptr, false
+    );
+    dragonIntro->left = dragonChoice;
+    dragonIntro->right = dragonChoice;
+
+
+    // ==========================================
+    // MID-GAME: FACTIONS
+    // ==========================================
+
+    // PATH A: IRON VOW (Order)
+    auto ironVow = new StoryNode(
+        "FORTRESS OF THE IRON VOW\n\n"
+        "Stone walls rise against the snow. Soldiers drill in the courtyard.\n"
+        "Commander Hrolf looks at you sternly.\n"
+        "\"Discipline is the only defense against the beast. Will you pledge your blade?\"",
+        "Pledge loyalty (Order +)",
+        "Remain independent",
+        [](GameState& s){ s.joinedOrder = true; s.order += 2; }
+    );
+    ironVow->left = dragonIntro;
+    ironVow->right = dragonIntro;
+
+    // PATH B: WHISPERING WOODS (Chaos/Knowledge)
+    auto whisperingWoods = new StoryNode(
+        "THE WHISPERING WOODS\n\n"
+        "The trees here are twisted, marked with old runes.\n"
+        "A hooded figure—a Scholar—beckons you.\n"
+        "\"The Dragon is not a beast, but a god. We must understand it.\"",
+        "Study the runes (Knowledge +)",
+        "Ignore the heresy",
+        [](GameState& s){ s.joinedScholars = true; s.knowledge += 2; }
+    );
+    whisperingWoods->left = dragonIntro;
+    whisperingWoods->right = dragonIntro;
+
+
+    // ==========================================
+    // INCITING INCIDENT
+    // ==========================================
+
+    auto wolfBattle = new StoryNode(
+        "A SNARL IN THE MIST\n\n"
+        "Before you can proceed, a gaunt shape leaps from the snow!\n"
+        "A Starving Wolf blocks your path.",
+        "Continue", "Continue", nullptr, nullptr, false
+    );
+    wolfBattle->hasBattle = true;
+    wolfBattle->enemyType = 2; // Wolf
+
+    // Branching point after wolf
+    auto pathChoice = new StoryNode(
+        "The wolf lies dead. The path splits ahead.\n"
+        "To the West, the smoke of the Iron Vow fortress.\n"
+        "To the East, the dark canopy of the Whispering Woods.",
+        "Go West (Fortress)",
+        "Go East (Woods)",
+        nullptr, nullptr, false
+    );
+    pathChoice->left = ironVow;
+    pathChoice->right = whisperingWoods;
+
+    wolfBattle->left = pathChoice;
+    wolfBattle->right = pathChoice; // Same outcome
+
+    // ==========================================
+    // START
+    // ==========================================
+
+    auto startNode = new StoryNode(
         "SKJORHEIM\n\n"
-        "Negeri pegunungan dan hutan pinus.\n"
-        "Sejarah terkubur di bawah es dan darah.\n\n"
-        "Dahulu kala, naga menguasai langit.\n"
-        "Bahasa mereka membuat dunia merintih.\n\n"
-        "Kini, desa kembali terbakar.\n\n"
-        "Kamu terbangun di pinggiran hutan.\n"
-        "Tubuhmu sakit, salju mencair di kakimu.\n\n"
-        "Kamu mencium bau ikan asap dan ketakutan.\n"
-        "Benteng Beku berdiri di kejauhan.\n\n"
-        "Kamu tidak mengingat masa lalumu.\n"
-        "Namun ketika bahaya datang...\n"
-        "DUNIA MENDENGARKAN SUARAMU.",
-        "Mencari Benteng Beku",
-        "Mengikuti bisikan angin",
-    };
+        "The wind howls like a dying god.\n"
+        "You awaken in the snow, memories fragmented like cracked ice.\n"
+        "You feel a pull—a calling towards the mountain peak.\n"
+        "But first, you must survive the wilds.",
+        "Stand up",
+        "Crawl forward",
+        nullptr, nullptr, false
+    );
 
-    start->left = order;
-    start->right = scholars;
+    startNode->left = wolfBattle;
+    startNode->right = wolfBattle;
 
-    return start;
+    return startNode;
 }
