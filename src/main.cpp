@@ -1,8 +1,6 @@
 #include "StoryTree.h"
-#include "TextSettings.h" // Correct include
+#include "TextSettings.h"
 #include <iostream>
-
-// Removed includes of .cpp files
 
 void showMainMenu() {
     int choice;
@@ -18,7 +16,6 @@ void showMainMenu() {
 
         std::cin >> choice;
 
-        // Handle invalid input
         if (std::cin.fail()) {
             std::cin.clear();
             std::cin.ignore(1000, '\n');
