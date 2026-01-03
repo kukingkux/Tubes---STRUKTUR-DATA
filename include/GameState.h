@@ -26,11 +26,11 @@ struct GameState {
     bool joinedScholars = false;
     bool helpedRebels = false;
 
-    // CRUD: Words of Power Collection
+    // CRUD: Words of Power
     std::vector<WordOfPower> grimoire;
 
-    // Helper functions for CRUD
     void addWord(const std::string& n, const std::string& d, int p) {
+        // Check duplicates? For simplicity, assume unique or allow duplicates
         grimoire.push_back({n, d, p, 1});
         std::cout << "\n[NEW WORD LEARNED]: " << n << "\n";
     }

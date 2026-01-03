@@ -2,16 +2,16 @@
 #define STORYTREE_H_INCLUDED
 
 #include "StoryNode.h"
+#include "GameState.h"
 
 class StoryTree {
 public:
-    StoryTree(GameState& state);
-
+    StoryTree();
     void start();
 
 private:
-    GameState& state;
     StoryNode* root;
+    GameState state; // Encapsulate state here
     
     void runNode(StoryNode* node);
     StoryNode* buildStory();

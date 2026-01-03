@@ -1,6 +1,7 @@
 #ifndef TEXTSETTINGS_H_INCLUDED
 #define TEXTSETTINGS_H_INCLUDED
 #include <string>
+
 #define RESET   "\033[0m"
 #define RED     "\033[31m"
 #define GREEN   "\033[32m"
@@ -14,7 +15,6 @@ struct TextSettings {
     bool skipTyping = false;
 };
 
-// Extern declaration for global settings
 extern TextSettings textSettings;
 
 void typeText(const std::string& text, int delayMs = 25);

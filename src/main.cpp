@@ -1,8 +1,10 @@
 #include "StoryTree.h"
-#include "TextSettings.h" // Correct include
+#include "BattleSystem.h"
+#include "TextSettings.h"
 #include <iostream>
+#include <limits>
 
-// Do NOT include .cpp files here
+using namespace std;
 
 void showMainMenu() {
     int choice;
@@ -17,6 +19,12 @@ void showMainMenu() {
         << "Choose: ";
 
         std::cin >> choice;
+
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            choice = 0;
+        }
 
         if (choice == 1) break;
         if (choice == 2) {
@@ -56,11 +64,9 @@ void showMainMenu() {
 }
 
 int main() {
-    GameState state;
-
     showMainMenu();
 
-    StoryTree story(state);
+    StoryTree story;
     story.start();
 
     std::cout << "\nTerima kasih udah main :D\n";
