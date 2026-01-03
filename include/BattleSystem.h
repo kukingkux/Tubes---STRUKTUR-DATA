@@ -12,6 +12,7 @@ struct Enemy {
     int hp;
     int minDmg;
     int maxDmg;
+    int type; // 1=Cultist, 2=Bandit/Wolf, 3=Dragon 
 };
 
 BattleResult startBattle(int& playerHp, Enemy enemy);
