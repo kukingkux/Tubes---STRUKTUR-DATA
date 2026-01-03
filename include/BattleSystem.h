@@ -2,19 +2,27 @@
 #define BATTLESYSTEM_H_INCLUDED
 #include <string>
 
-enum BattleResult {
+enum BattleState {
+    BATTLE_START,
+    PLAYER_TURN,
+    ENEMY_TURN,
+    CHECK_RESULT,
     BATTLE_WIN,
     BATTLE_LOSE
 };
 
-struct Enemy {
-    std::string name;
-    int hp;
-    int minDmg;
-    int maxDmg;
-    int type; // 1=Cultist, 2=Wolf/Bandit, 3=Dragon
+enum BattleResult {
+    WIN,
+    LOSE
 };
 
-BattleResult startBattle(int& playerHp, Enemy enemy);
+struct Battle {
+    std::string enemyName;
+    int enemyHP;
+    int enemyMinDmg;
+    int enemyMaxDmg;
+};
+
+BattleResult startBattle(int& playerHp, Battle enemy);
 
 #endif

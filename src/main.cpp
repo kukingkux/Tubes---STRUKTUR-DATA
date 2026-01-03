@@ -1,6 +1,8 @@
 #include "StoryTree.h"
-#include "TextSettings.h"
+#include "TextSettings.h" // Correct include
 #include <iostream>
+
+// Do NOT include .cpp files here
 
 void showMainMenu() {
     int choice;
@@ -15,12 +17,6 @@ void showMainMenu() {
         << "Choose: ";
 
         std::cin >> choice;
-
-        if (std::cin.fail()) {
-            std::cin.clear();
-            std::cin.ignore(1000, '\n');
-            choice = 0;
-        }
 
         if (choice == 1) break;
         if (choice == 2) {
@@ -67,6 +63,6 @@ int main() {
     StoryTree story(state);
     story.start();
 
-    std::cout << "\nThanks for playing Skjorheim.\n";
+    std::cout << "\nTerima kasih udah main :D\n";
     return 0;
 }

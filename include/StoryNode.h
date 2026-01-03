@@ -1,6 +1,7 @@
 #ifndef STORYNODE_H_INCLUDED
 #define STORYNODE_H_INCLUDED
 #include <string>
+#include <functional>
 #include "GameState.h"
 
 struct StoryNode {
@@ -8,13 +9,25 @@ struct StoryNode {
     std::string choiceA;
     std::string choiceB;
 
-    StoryNode* left;
-    StoryNode* right;
+    StoryNode* left = nullptr;
+    StoryNode* right = nullptr;
 
-    bool hasBattle;
-    int enemyType; // 0 none, 1 cultist, 2 inquisitor, 3 dragon
+    bool hasBattle = false;
+    int enemyType = 0;
+
+    std::function<void(GameState&)> effect = nullptr;
+    std::function<bool(const GameState&)> condition = nullptr;
 
     bool isEnding = false;
+
+    StoryNode(
+        const std::string& t,
+        const std::string& a = "",
+        const std::string& b = "",
+        std::function<void(GameState&)> e = nullptr,
+        std::function<bool(const GameState&)> c = nullptr,
+        bool ending = false
+    ) : text (t), choiceA(a), choiceB(b), effect(e), condition(c), isEnding(ending) {}
 };
 
 #endif
