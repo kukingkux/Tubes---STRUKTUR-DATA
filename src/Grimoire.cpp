@@ -32,7 +32,7 @@ void Grimoire::learnWord(const std::string& name, const std::string& description
     if (head == nullptr) {
         head = newNode;
     } else {
-        // Append to end (O(n)) - simplest for keeping order
+        // Append to end (O(n))
         GrimoireNode* current = head;
         while (current->next != nullptr) {
             current = current->next;
@@ -107,6 +107,34 @@ void Grimoire::forgetWord(int index) {
     }
 }
 
+int Grimoire::useWordInBattle() {
+    if (isEmpty()) {
+        cout << "You have no words to use!\n";
+        return 0;
+    }
+
+    listWords();
+    cout << "Select a word to cast (0 to cancel): ";
+
+    int idx;
+    cin >> idx;
+
+    if (cin.fail()) {
+        clearInputBuffer();
+        return 0;
+    }
+
+    if (idx <= 0) return 0;
+
+    GrimoireNode* node = getNodeAt(idx - 1);
+    if (node) {
+        cout << "You channel the energy of " << node->data.name << "...\n";
+        return node->data.power;
+    }
+
+    return 0;
+}
+
 void Grimoire::openMenu() {
     while (true) {
         cout << CYAN "\n=== GRIMOIRE MANAGEMENT ===\n" RESET;
@@ -139,8 +167,6 @@ void Grimoire::openMenu() {
             if (cin.fail()) { clearInputBuffer(); continue; }
 
             if (idx > 0) {
-                // Check bounds? getNodeAt returns nullptr if out of bounds, so upgradeWord handles it.
-                // But we should verify validity to print message? upgradeWord prints if valid.
                 upgradeWord(idx - 1);
             }
         }

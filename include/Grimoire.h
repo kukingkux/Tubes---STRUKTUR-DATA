@@ -26,6 +26,9 @@ public:
     void learnWord(const std::string& name, const std::string& description, int power);
     void openMenu();
 
+    // Battle Integration
+    int useWordInBattle();
+
     // Public for inspection if needed, but mainly used internally
     bool isEmpty() const;
 

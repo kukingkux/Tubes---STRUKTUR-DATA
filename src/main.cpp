@@ -2,9 +2,8 @@
 #include "BattleSystem.h"
 #include "TextSettings.h"
 #include <iostream>
-#include <limits>
 
-using namespace std;
+extern TextSettingsStruct textSettings;
 
 void showMainMenu() {
     int choice;
@@ -22,7 +21,7 @@ void showMainMenu() {
 
         if (std::cin.fail()) {
             std::cin.clear();
-            std::cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            std::cin.ignore(1000, '\n');
             choice = 0;
         }
 
@@ -59,14 +58,17 @@ void showMainMenu() {
 
             textSettings.skipTyping = (c == 1);
         }
-        if (choice == 3) exit(0);
+        if (choice == 3)
+            exit(0);
     }
 }
 
 int main() {
+    GameState state;
+
     showMainMenu();
 
-    StoryTree story;
+    StoryTree story(state);
     story.start();
 
     std::cout << "\nTerima kasih udah main :D\n";

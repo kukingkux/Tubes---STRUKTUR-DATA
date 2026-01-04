@@ -14,13 +14,9 @@ struct StoryNode {
     bool hasBattle;
     int enemyType; // 0 none, 1 cultist, 2 inquisitor, 3 dragon
 
-    bool isEnding;
+    bool isEnding = false;
 
-    // Event ID for triggering special logic
-    // 0: None
-    // 1: Learn Word (Create)
-    // 2: Manage Grimoire (Read/Update/Delete)
-    int eventId;
+    int eventId; // 0 none, 1 learn word (create), 2 manage (RUD)
 };
 
 #endif

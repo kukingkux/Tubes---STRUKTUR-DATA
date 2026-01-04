@@ -1,6 +1,7 @@
 #ifndef GAMESTATE_H_INCLUDED
 #define GAMESTATE_H_INCLUDED
-#include "Grimoire.h" // Include the new module
+#include <string>
+#include "Grimoire.h"
 
 struct GameState {
     // Player
@@ -17,7 +18,7 @@ struct GameState {
     bool joinedScholars = false;
     bool helpedRebels = false;
 
-    // CRUD: Words of Power Manager
+    // CRUD: Words of Power
     Grimoire grimoire;
 };
 

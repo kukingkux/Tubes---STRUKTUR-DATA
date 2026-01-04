@@ -6,12 +6,12 @@
 
 class StoryTree {
 public:
-    StoryTree();
+    StoryTree(GameState& state);
     void start();
 
 private:
+    GameState& state;
     StoryNode* root;
-    GameState state; // Encapsulate state here
     
     void runNode(StoryNode* node);
     StoryNode* buildStory();
