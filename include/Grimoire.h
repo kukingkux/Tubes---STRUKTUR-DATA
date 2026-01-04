@@ -7,21 +7,35 @@
 struct WordOfPower {
     std::string name;
     std::string description;
-    int poweer;
+    int power;
     int level;
+};
+
+struct GrimoireNode {
+    WordOfPower data;
+    GrimoireNode* next;
+
+    GrimoireNode(WordOfPower val) : data(val), next(nullptr) {} // Constructor Node
 };
 
 class Grimoire {
 public:
+    Grimoire();
+    ~Grimoire(); // Destructor
+
     void learnWord(const std::string& name, const std::string& description, int power);
     void openMenu(); // Menu for Read, Update, Delete
 
+    bool isEmpty() const;
+
 private:
-    std::vector<WordOfPower> words;
+    GrimoireNode* head;
 
     void listWords() const; // Read
     void upgradeWord(int index); // Update
     void forgetWord(int index); // Delete
+
+    GrimoireNode* getNodeAt(int) const;
 };
 
 #endif
