@@ -238,32 +238,6 @@ StoryNode* StoryTree::buildStory() {
         false, 0, false, 0
     };
 
-    auto campfire = new StoryNode {
-        "===CAMPFIRE===\n\n"
-        "You find a safe spot to rest. The fire crackles warmly.\n"
-        "This is a good time to reflect on your Words of Power.",
-        "Meditate (Open Grimoire)", "Continue Journey",
-        nullptr, nullptr,
-        false, 0, false, 0
-    };
-
-    auto grimoireNode = new StoryNode {
-        "You sit by the fire and open your mind to the Words.",
-        "Back to Fire", "Back to Fire",
-        campfire, campfire,
-        false, 0, false, 2
-    };
-
-    auto runeStone = new StoryNode {
-        "ANCIENT RUNE STONE\n\n"
-        "You stumble upon a glowing stone pulsating with energy.\n"
-        "It etches a memory into your mind.\n"
-        "You have learned a Word of Power!",
-        "Touch the Stone", "Examine closely",
-        campfire, campfire,
-        false, 0, false, 1
-    };
-
     // Path Choice
     auto pathChoice = new StoryNode{
         "The wolf lies still.\n"
@@ -275,6 +249,34 @@ StoryNode* StoryTree::buildStory() {
         "Go West (Fortress)", "Go East (Woods)",
         ironVow, whisperingWoods,
         false, 0, false, 0
+    };
+
+    auto campfire = new StoryNode {
+        "===CAMPFIRE===\n\n"
+        "You find a safe spot to rest. The fire crackles warmly.\n"
+        "This is a good time to reflect on your Words of Power.",
+        "Meditate (Open Grimoire)", "Continue Journey",
+        nullptr, pathChoice,
+        false, 0, false, 0
+    };
+
+    auto grimoireNode = new StoryNode {
+        "You sit by the fire and open your mind to the Words.",
+        "Back to Fire", "Back to Fire",
+        campfire, campfire,
+        false, 0, false, 2
+    };
+
+    campfire->left = grimoireNode;
+
+    auto runeStone = new StoryNode {
+        "ANCIENT RUNE STONE\n\n"
+        "You stumble upon a glowing stone pulsating with energy.\n"
+        "It etches a memory into your mind.\n"
+        "You have learned a Word of Power!",
+        "Touch the Stone", "Examine closely",
+        campfire, campfire,
+        false, 0, false, 1
     };
 
     // Wolf Battle
