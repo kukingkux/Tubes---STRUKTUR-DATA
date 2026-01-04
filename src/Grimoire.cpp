@@ -24,9 +24,30 @@ bool Grimoire::isEmpty() const {
     return head == nullptr;
 }
 
+int Grimoire::getWordCount() const {
+    int count = 0;
+    GrimoireNode* current = head;
+    while (current != nullptr) {
+        count++;
+        current = current->next;
+    }
+    return count;
+}
+
+bool Grimoire::hasUpgradedWords() const {
+    GrimoireNode* current = head;
+    while (current != nullptr) {
+        if (current->data.level > 1) return true;
+        current = current->next;
+    }
+    return false;
+}
+
 void Grimoire::learnWord(const std::string& name, const std::string& description, int power) {
     WordOfPower newWord = {name, description, power};
     GrimoireNode* newNode = new GrimoireNode(newWord);
+    newNode->next = head;
+    head = newNode;
     cout << "\n[NEW WORD LEARNED]: " << name << "\n";
 }
 
