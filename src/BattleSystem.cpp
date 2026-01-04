@@ -6,8 +6,7 @@
 #include <limits>
 using namespace std;
 
-// damageOutput declaration in header has default argument.
-// Definition should not repeat it.
+// Definition matches declaration in TextSettings.h
 void damageOutput(int index, int damage, string enemy) {
     if (index == 0) {
         cout << "You dealt " << damage << " damage to " << enemy << "!\n";
@@ -17,7 +16,7 @@ void damageOutput(int index, int damage, string enemy) {
 }
 
 // Updated signature
-BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
+BattleResult startBattle(int& playerHp, Enemy enemy, Grimoire& grimoire) {
     bool battleOver = false;
     bool playerTurn = true;
     bool dragonNextAttackHeavy = false;
@@ -27,7 +26,7 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
     while (!battleOver) {
         if (playerTurn) {
             // PLAYER TURN
-            cout << "\nYour HP: " << playerHP << " | Enemy HP: " << enemy.hp << "\n";
+            cout << "\nYour HP: " << playerHp << " | Enemy HP: " << enemy.hp << "\n";
             cout << "1. Light Attack\n";
             cout << "2. Heavy Attack\n";
             if (!grimoire.isEmpty()) {
@@ -80,7 +79,7 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
                 if (dragonNextAttackHeavy) {
                     int damage = enemy.maxDmg + 5 + (rand() % 5);
                     typeText(RED "THE DRAGON UNLEASHES FIRE FROM IT'S MOUTH!" RESET);
-                    playerHP -= damage;
+                    playerHp -= damage;
                     damageOutput(1, damage);
                     dragonNextAttackHeavy = false;
                 } else if (action < 30) {
@@ -91,17 +90,17 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
                 } else {
                     int damage = enemy.minDmg + rand() % (enemy.maxDmg - enemy.minDmg + 1);
                     typeText("The Dragon swipes with its claws!");
-                    playerHP -= damage;
+                    playerHp -= damage;
                     damageOutput(1, damage);
                 }
             } else {
                 int damage = enemy.minDmg + rand() % (enemy.maxDmg - enemy.minDmg + 1);
                 typeText(enemy.name + " attacks you!");
-                playerHP -= damage;
+                playerHp -= damage;
                 damageOutput(1, damage);
             }
 
-            if (playerHP <= 0) {
+            if (playerHp <= 0) {
                 battleOver = true;
                 return BATTLE_LOSE;
             }
