@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
+#include <limits>
 using namespace std;
 
 void damageOutput(int index, int damage, string enemy) {
@@ -15,19 +16,20 @@ void damageOutput(int index, int damage, string enemy) {
     }
 }
 
-BattleResult startBattle(int& playerHP, Enemy enemy) {
+BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
     bool battleOver = false;
     bool playerTurn = true;
     bool dragonNextAttackHeavy = false;
 
-    typeText("\nA wild " + enemy.name + "appears!\n");
+    typeText("\nA wild " + enemy.name + " appears!\n");
 
     while (!battleOver) {
         if (playerTurn) {
             // PLAYER TURN
             cout << "\nYour HP: " << playerHP << " | Enemy HP: " << enemy.hp << "\n";
-            cout << "1. Light Attack (Fast, reliable)\n";
-            cout << "1. Heavy Attack (Slow, high damage)\n";
+            cout << "1. Light Attack\n";
+            cout << "2. Heavy Attack\n";
+            cout << "3. Use Words of Power\n";
             cout << "Choose your action: ";
 
             int choice;
@@ -35,7 +37,7 @@ BattleResult startBattle(int& playerHP, Enemy enemy) {
 
             if (cin.fail()) {
                 cin.clear();
-                cin.ignore(1000, '\n');
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 choice = 0;
             }
 
@@ -46,6 +48,14 @@ BattleResult startBattle(int& playerHP, Enemy enemy) {
             } else if (choice == 2) {
                 damage = 10 + rand() % 11; // Heavy Attack: 10-20 dmg
                 typeText("You perform a Heavy Attack!");
+            } else if (choice == 3) {
+                int wordDamage = grimoire.useWordInBattle();
+                if (wordDamage > 0) {
+                    damage = wordDamage;
+                    typeText("You incant the Words of Power!");
+                } else {
+                    typeText("You fumbled the words...");
+                }
             } else {
                 typeText("You hesitate and stumble.");
             }

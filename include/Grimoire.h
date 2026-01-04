@@ -26,6 +26,8 @@ public:
     void learnWord(const std::string& name, const std::string& description, int power);
     void openMenu(); // Menu for Read, Update, Delete
 
+    int useWordInBattle();
+
     bool isEmpty() const;
 
 private:
@@ -35,7 +37,7 @@ private:
     void upgradeWord(int index); // Update
     void forgetWord(int index); // Delete
 
-    GrimoireNode* getNodeAt(int) const;
+    GrimoireNode* getNodeAt(int index) const;
 };
 
 #endif
