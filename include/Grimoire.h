@@ -29,6 +29,8 @@ public:
     int useWordInBattle();
 
     bool isEmpty() const;
+    int getWordCount() const;
+    bool hasUpgradedWords() const;
 
 private:
     GrimoireNode* head;

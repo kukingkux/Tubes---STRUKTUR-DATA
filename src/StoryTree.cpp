@@ -6,6 +6,9 @@
 #include <thread>
 #include <iostream>
 #include <limits>
+#include <fstream>
+#include <sstream>
+
 using namespace std;
 
 TextSettingsStruct textSettings;
@@ -37,8 +40,20 @@ void typeText(const string& text, int delayMs) {
     cout << RESET << "\n";
 }
 
+string loadStoryText(const string& filepath) {
+    ifstream file(filepath);
+    if (!file.is_open()) {
+        return "[ERROR: Could not load story text from " + filepath + "]";
+    }
+    stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
 
 StoryTree::StoryTree(GameState& s) : state(s){
+    if (getenv("SKJORHEIM_TEST_MODE")) {
+        textSettings.skipTyping = true;
+    }
     root = buildStory();
 }
 
@@ -49,13 +64,102 @@ void StoryTree::start() {
 void StoryTree::runNode(StoryNode* node) {
     if (!node) return;
 
+    // Dragon Router Logic (Event ID 3)
+    if (node->eventId == 3) {
+        // Decide which dragon node to run based on Grimoire state
+        int wordCount = state.grimoire.getWordCount();
+        bool upgraded = state.grimoire.hasUpgradedWords();
+
+        if (wordCount == 0) {
+            runNode(node->left); // Silent Mortal (stored in left for convenience)
+        } else if (wordCount == 1 && !upgraded) {
+            runNode(node->right); // Touched by Word (stored in right)
+        } else {
+            // For the 3rd option, we might need a way to store it.
+            // Since StoryNode only has left/right, we can assume 'right->left' or similar?
+            // Or better, we can't easily store 3 pointers in StoryNode without changing the struct.
+            // BUT: "Dragon Intro node must be selected at runtime".
+            // The router node can have children that are also just pointers to the real nodes.
+            // Let's assume:
+            // Left = Silent
+            // Right = Touched
+            // But we need Voice-Bearer.
+            // Let's abuse the system slightly:
+            // Since we are inside runNode, we can just MANUALLY navigate to the known nodes if we had pointers to them.
+            // But we don't have member variables for them.
+            //
+            // BETTER IDEA:
+            // The Router Node can use `choiceA` and `choiceB` strings to store the filenames of the other nodes? No, that's messy.
+            //
+            // Let's look at the structure again.
+            // We have `left` and `right`.
+            // Silent (0) -> left
+            // Touched (1) -> right
+            // Voice (>1) -> ?
+            //
+            // We can make a chain.
+            // Router -> left (Silent)
+            // Router -> right (CheckNext)
+            // CheckNext -> left (Touched)
+            // CheckNext -> right (Voice)
+            //
+            // This works with simple binary tree logic!
+
+            // Re-implementing logic with the chain idea in mind:
+            // Actually, wait. I am WRITING the logic here.
+            // If I build the tree such that I have access to these nodes...
+            // But runNode is recursive.
+            //
+            // Alternative:
+            // The `node` passed here IS the router.
+            // If I simply `return runNode(...)` I need the pointer.
+            //
+            // Let's go with the chain approach for the router in `buildStory`.
+            // Router1 (Event 3)
+            //   Left -> Silent
+            //   Right -> Router2 (Event 4)
+            //      Left -> Touched
+            //      Right -> Voice
+
+            // Implementation below uses this logic.
+            runNode(node->right); // Delegate to Router 2
+        }
+        return;
+    }
+
+    if (node->eventId == 4) { // Router 2
+         int wordCount = state.grimoire.getWordCount();
+         bool upgraded = state.grimoire.hasUpgradedWords();
+
+         if (wordCount > 1 || upgraded) {
+             runNode(node->right); // Voice Bearer
+         } else {
+             runNode(node->left); // Touched
+         }
+         return;
+    }
+
     if (node->eventId == 1) {
         state.grimoire.learnWord("FUS", "Unleash Force", 10);
     } else if (node->eventId == 2) {
         state.grimoire.openMenu();
     }
 
-    typeText("\n" + node->text + "\n");
+    string displayText = loadStoryText(node->text);
+
+    // Add flavor text to endings based on Grimoire
+    if (node->isEnding) {
+        int words = state.grimoire.getWordCount();
+        if (words == 0) {
+            displayText += "\n\n(You faced the end with silence in your heart.)";
+        } else if (state.grimoire.hasUpgradedWords()) {
+             displayText += "\n\n(The Words of Power echo in your soul, reshaping the world.)";
+        } else {
+             displayText += "\n\n(The single Word you learned whispers softly in the dark.)";
+        }
+    }
+
+    typeText("\n" + displayText + "\n");
 
     if (node->hasBattle) {
         Enemy enemy;
@@ -112,156 +216,135 @@ void StoryTree::runNode(StoryNode* node) {
 StoryNode* StoryTree::buildStory() {
     // === ENDINGS ===
     auto endingOrder = new StoryNode{
-        "THE SILENCE OF ORDER\n\n"
-        "The great wyrm falls.\n"
-        "And with it, the skies grow still.\n\n"
-        "The Iron Vow marches without mercy,\n"
-        "scouring scale and flame from the world.\n\n"
-        "Peace is proclaimed.\n"
-        "Yet the age of wonder bleeds away unseen.\n\n"
-        "You are crowned a savior.\n"
-        "But in quieter tongues,\n"
-        "they name you the slayer of miracles.",
+        "story_text/ending_order.txt",
         "", "", nullptr, nullptr, false, 0, true, 0
     };
 
     auto endingChaos = new StoryNode{
-        "THE REIGN OF FIRE\n\n"
-        "The Dragon’s cry splits stone and sky.\n"
-        "The mountain bows before ancient wings.\n\n"
-        "You do not raise your hand.\n"
-        "You do not turn away.\n\n"
-        "The flight descends.\n"
-        "Crown and city alike are reduced to ember.\n\n"
-        "From ruin, a savage age awakens.\n"
-        "And the world remembers flame.",
+        "story_text/ending_chaos.txt",
         "", "", nullptr, nullptr, false, 0, true, 0
     };
 
     auto endingBalance = new StoryNode{
-        "THE ETERNAL WATCH\n\n"
-        "The Dragon inclines its head.\n"
-        "A gesture older than kingdoms.\n\n"
-        "With a single beat of its wings,\n"
-        "it vanishes beyond cloud and memory.\n\n"
-        "The Dragons do not rule.\n"
-        "Nor are they erased.\n\n"
-        "They sleep.\n"
-        "And the world endures—\n"
-        "trembling, hopeful, unbroken.\n\n"
-        "You depart without song or crown,\n"
-        "warden of a fragile dawn.",
+        "story_text/ending_balance.txt",
         "", "", nullptr, nullptr, false, 0, true, 0
     };
 
-    // === DRAGON ===
-    // Dragon Battle
+    // === DRAGON BRANCHES ===
+
+    // 1. Voice Bearer Path (Best)
+    // Needs choices? The original dragon had choices.
+    // "Challenge" or "Listen".
+    // Let's map them.
+    // Voice Bearer -> Listen (Balance) or Challenge (Battle -> Order)?
+    // User constraints:
+    // Voice-Bearer: "True Balance ending unlocked"
+    // Touched: "Balance ending possible"
+    // Silent: "No diplomacy path"
+
+    // Dragon Battle Node (Shared)
     auto dragonBattleNode = new StoryNode{
-        "THE SKY TEARS OPEN\n\n"
-        "You bare your steel.\n\n"
-        "The Dragon’s laughter rolls like collapsing peaks.\n\n"
-        "“THEN PERISH, FLESH-BORN.”\n\n"
-        "Fire surges.\n"
-        "The summit is swallowed whole.",
+        "story_text/dragon_battle.txt",
         "Continue", "Continue",
         endingOrder, endingOrder,
         true, 3, false, 0
     };
 
-    // Listen Branch
+    // Listen Branch (Leads to Chaos or Balance)
     auto listenBranch = new StoryNode{
-        "You lower your weapon.\n"
-        "The Dragon’s gaze sharpens.\n\n"
-        "It studies you—not as prey,\n"
-        "but as one who yet chooses.",
+        "story_text/listen_branch.txt",
         "Accept the Chaos", "Seek Balance",
         endingChaos, endingBalance,
         false, 0, false, 0
     };
 
-   // Dragon Choice
+    // Dragon Choice (Standard)
     auto dragonChoice = new StoryNode{
-        "THE DRAGON'S GAZE\n\n"
-        "“WE ARE THE NAILS THAT PIN REALITY IN PLACE.”\n\n"
-        "“STRIKE ME DOWN,\n"
-        "AND THE OLD BONDS UNRAVEL.”\n\n"
-        "“STAND WITH ME,\n"
-        "AND LET THE FALSE CROWNS BURN.”\n\n"
-        "“OR TURN AWAY,\n"
-        "AND LEAVE THE WEAVE UNTO FATE.”",
+        "story_text/dragon_choice.txt",
         "Challenge the Dragon", "Listen to the Dragon",
         dragonBattleNode, listenBranch,
         false, 0, false, 0
     };
 
-    // Dragon Intro
-    auto dragonIntro = new StoryNode{
-        "THE PEAK OF STORMS\n\n"
-        "You reach the summit.\n"
-        "The air is thin, sharp with lightning.\n\n"
-        "Ruins lie broken beneath drifting snow.\n\n"
-        "Then—movement.\n"
-        "Not cloud.\n"
-        "Not shadow.\n\n"
-        "Obsidian scale.\n"
-        "Eyes like molten suns.\n\n"
-        "“YOU HAVE WALKED FAR, MORTAL.”",
-        "Step forward", "Hold your ground",
-        dragonChoice, dragonChoice,
+    // --- NEW DRAGON NODES ---
+
+    // 3. Voice Bearer (>1 word or upgraded) -> Treats as equal.
+    // Can Choose: Challenge or Listen.
+    auto dragonVoice = new StoryNode{
+        "story_text/dragon_voice.txt",
+        "Challenge", "Speak with the Dragon",
+        dragonBattleNode, listenBranch, // Access to Balance
         false, 0, false, 0
+    };
+
+    // 2. Touched (1 word) -> Acknowledges potential.
+    // Can Choose: Challenge or Listen.
+    auto dragonTouched = new StoryNode{
+        "story_text/dragon_touched.txt",
+        "Challenge", "Listen",
+        dragonBattleNode, listenBranch, // Access to Balance
+        false, 0, false, 0
+    };
+
+    // 1. Silent (0 words) -> Dismissive.
+    // No diplomacy. Forced Battle? Or just Game Over?
+    // "No diplomacy path". So probably forced battle or just Order/Chaos endings without Balance.
+    // Let's say forced battle.
+    auto dragonSilent = new StoryNode{
+        "story_text/dragon_silent.txt",
+        "Draw Weapon", "Draw Weapon",
+        dragonBattleNode, dragonBattleNode, // Forced Battle
+        false, 0, false, 0
+    };
+
+    // === ROUTERS ===
+    // Router 2: Decides between Touched and Voice
+    auto dragonRouter2 = new StoryNode{
+        "", "", "",
+        dragonTouched, dragonVoice,
+        false, 0, false, 4 // Event ID 4
+    };
+
+    // Router 1: Decides between Silent and Router 2
+    auto dragonRouter1 = new StoryNode{
+        "", "", "",
+        dragonSilent, dragonRouter2,
+        false, 0, false, 3 // Event ID 3
     };
 
     // === Story ===
     // Factions
     auto ironVow = new StoryNode{
-        "FORTRESS OF THE IRON VOW\n\n"
-        "Stone walls claw at the frozen sky.\n"
-        "Steel rings against steel in tireless drill.\n\n"
-        "Commander Hrolf regards you in silence.\n\n"
-        "“Discipline is the final bulwark,” he says.\n"
-        "“Swear your blade, and stand against the beast.”",
+        "story_text/iron_vow.txt",
         "Pledge loyalty (Order +)", "Remain independent",
-        dragonIntro, dragonIntro,
+        dragonRouter1, dragonRouter1,
         false, 0, false, 0
     };
 
     auto whisperingWoods = new StoryNode{
-        "THE WHISPERING WOODS\n\n"
-        "Twisted boughs choke the pale light.\n"
-        "Runes scar bark and stone alike.\n\n"
-        "A hooded scholar gestures you closer.\n\n"
-        "“Not beast,” they murmur.\n"
-        "“But god.\n"
-        "To know it, is to survive what comes.”",
+        "story_text/whispering_woods.txt",
         "Study the runes (Knowledge +)", "Ignore the heresy",
-        dragonIntro, dragonIntro,
+        dragonRouter1, dragonRouter1,
         false, 0, false, 0
     };
 
     // Path Choice
     auto pathChoice = new StoryNode{
-        "The wolf lies still.\n"
-        "Steam rises from its corpse.\n\n"
-        "The road divides.\n\n"
-        "West—smoke and steel.\n"
-        "East—shadows and murmurs.\n\n"
-        "The choice is yours.",
+        "story_text/path_choice.txt",
         "Go West (Fortress)", "Go East (Woods)",
         ironVow, whisperingWoods,
         false, 0, false, 0
     };
 
     auto campfire = new StoryNode {
-        "===CAMPFIRE===\n\n"
-        "You find a safe spot to rest. The fire crackles warmly.\n"
-        "This is a good time to reflect on your Words of Power.",
+        "story_text/campfire.txt",
         "Meditate (Open Grimoire)", "Continue Journey",
         nullptr, pathChoice,
         false, 0, false, 0
     };
 
     auto grimoireNode = new StoryNode {
-        "You sit by the fire and open your mind to the Words.",
+        "story_text/grimoire_node.txt",
         "Back to Fire", "Back to Fire",
         campfire, campfire,
         false, 0, false, 2
@@ -270,37 +353,49 @@ StoryNode* StoryTree::buildStory() {
     campfire->left = grimoireNode;
 
     auto runeStone = new StoryNode {
-        "ANCIENT RUNE STONE\n\n"
-        "You stumble upon a glowing stone pulsating with energy.\n"
-        "It etches a memory into your mind.\n"
-        "You have learned a Word of Power!",
-        "Touch the Stone", "Examine closely",
+        "story_text/rune_stone.txt",
+        "Touch the Stone", "Leave it be",
         campfire, campfire,
-        false, 0, false, 1
+        false, 0, false, 1 // Event 1 learns word. Wait.
+        // If I choose "Leave it be", I shouldn't learn the word.
+        // But eventId=1 triggers learnWord automatically in runNode BEFORE choice.
+        // I need to split this node if I want optional learning.
+        // OR change eventId logic.
+        // Current logic: runNode calls eventId 1, THEN prints text, THEN asks choice.
+        // So I must learn it before choice.
+        // To make it optional, I need a "Pre-Rune" node.
+    };
+
+    // Let's fix the optional rune stone issue to allow testing "Silent Mortal" path.
+    // New Node: Rune Discovery
+    // Choice A: Touch -> Rune Learn Node
+    // Choice B: Leave -> Campfire
+
+    auto runeLearn = new StoryNode {
+        "story_text/rune_stone.txt", // "You learned a word!"
+        "Continue", "Continue",
+        campfire, campfire,
+        false, 0, false, 1 // Learn word here
+    };
+
+    auto runeDiscovery = new StoryNode {
+        "story_text/rune_discovery.txt",
+        "Touch the Stone", "Leave it be",
+        runeLearn, campfire,
+        false, 0, false, 0 // No event yet
     };
 
     // Wolf Battle
     auto wolfBattle = new StoryNode{
-        "A SNARL IN THE MIST\n\n"
-        "Snow scatters beneath sudden weight.\n\n"
-        "A starved form lunges,\n"
-        "eyes wild with hunger.\n\n"
-        "The hunt is joined.",
+        "story_text/wolf_battle.txt",
         "Continue", "Continue",
-        runeStone, runeStone,
+        runeDiscovery, runeDiscovery,
         true, 2, false, 0
     };
 
     // Start
     auto startNode = new StoryNode{
-        "SKJORHEIM\n\n"
-        "The wind howls like a wounded god.\n\n"
-        "You wake upon frozen ground,\n"
-        "memory splintered, breath unsteady.\n\n"
-        "Far above, the mountain calls.\n"
-        "A pull felt in bone and blood.\n\n"
-        "But first—\n"
-        "you must endure.",
+        "story_text/start.txt",
         "Stand up", "Crawl forward",
         wolfBattle, wolfBattle,
         false, 0, false, 0
