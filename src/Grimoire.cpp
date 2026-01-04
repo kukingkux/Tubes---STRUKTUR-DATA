@@ -1,47 +1,109 @@
 #include "Grimoire.h"
-#include "TextSettings.h" // For colors
+#include "TextSettings.h"
 #include <iostream>
 #include <limits>
 
 using namespace std;
 
-// Helper to clear input buffer (duplicated from StoryTree, maybe move to util? but keeping it simple here)
 static void clearInputBuffer() {
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
+Grimoire::Grimoire() : head(nullptr) {}
+
+Grimoire::~Grimoire() {
+    GrimoireNode* current = head;
+    while (current != nullptr) {
+        GrimoireNode* next = current->next;
+        delete current;
+        current = next;
+    }
+}
+
+bool Grimoire::isEmpty() const {
+    return head == nullptr;
+}
+
 void Grimoire::learnWord(const std::string& name, const std::string& description, int power) {
-    words.push_back({name, description, power, 1});
+    WordOfPower newWord = {name, description, power, 1};
+    GrimoireNode* newNode = new GrimoireNode(newWord);
+
+    if (head == nullptr) {
+        head = newNode;
+    } else {
+        // Append to end (O(n)) - simplest for keeping order
+        GrimoireNode* current = head;
+        while (current->next != nullptr) {
+            current = current->next;
+        }
+        current->next = newNode;
+    }
     cout << "\n[NEW WORD LEARNED]: " << name << "\n";
 }
 
 void Grimoire::listWords() const {
-    cout << "\n=== GRIMOIRE ===\n";
-    if (words.empty()) {
+    cout << "\n=== GRIMOIRE (Linked List) ===\n";
+    if (head == nullptr) {
         cout << "No words learned yet.\n";
         return;
     }
-    for (size_t i = 0; i < words.size(); ++i) {
-        cout << i + 1 << ". " << words[i].name
-             << " (Lvl " << words[i].level << "): "
-             << words[i].description << " [Power: " << words[i].power << "]\n";
+
+    GrimoireNode* current = head;
+    int index = 1;
+    while (current != nullptr) {
+        cout << index << ". " << current->data.name
+             << " (Lvl " << current->data.level << "): "
+             << current->data.description << " [Power: " << current->data.power << "]\n";
+        current = current->next;
+        index++;
     }
-    cout << "================\n";
+    cout << "==============================\n";
+}
+
+GrimoireNode* Grimoire::getNodeAt(int index) const {
+    if (index < 0) return nullptr;
+
+    GrimoireNode* current = head;
+    int count = 0;
+    while (current != nullptr) {
+        if (count == index) return current;
+        count++;
+        current = current->next;
+    }
+    return nullptr;
 }
 
 void Grimoire::upgradeWord(int index) {
-    if (index >= 0 && index < (int)words.size()) {
-        words[index].level++;
-        words[index].power += 5;
-        cout << "\n[UPGRADE]: " << words[index].name << " is now Level " << words[index].level << "!\n";
+    GrimoireNode* node = getNodeAt(index);
+    if (node) {
+        node->data.level++;
+        node->data.power += 5;
+        cout << "\n[UPGRADE]: " << node->data.name << " is now Level " << node->data.level << "!\n";
     }
 }
 
 void Grimoire::forgetWord(int index) {
-    if (index >= 0 && index < (int)words.size()) {
-        cout << "\n[FORGOTTEN]: " << words[index].name << " fades from memory.\n";
-        words.erase(words.begin() + index);
+    if (index < 0 || head == nullptr) return;
+
+    GrimoireNode* toDelete = nullptr;
+
+    if (index == 0) {
+        // Delete head
+        toDelete = head;
+        head = head->next;
+    } else {
+        // Delete non-head
+        GrimoireNode* prev = getNodeAt(index - 1);
+        if (prev && prev->next) {
+            toDelete = prev->next;
+            prev->next = toDelete->next;
+        }
+    }
+
+    if (toDelete) {
+        cout << "\n[FORGOTTEN]: " << toDelete->data.name << " fades from memory.\n";
+        delete toDelete;
     }
 }
 
@@ -63,36 +125,35 @@ void Grimoire::openMenu() {
         }
 
         if (choice == 1) {
-            // READ
             listWords();
             cout << "(Press Enter)";
             cin.ignore(); cin.get();
         }
         else if (choice == 2) {
-            // UPDATE
             listWords();
-            if (words.empty()) continue;
+            if (isEmpty()) continue;
 
             cout << "Enter number to upgrade (0 to cancel): ";
             int idx;
             cin >> idx;
             if (cin.fail()) { clearInputBuffer(); continue; }
 
-            if (idx > 0 && idx <= (int)words.size()) {
+            if (idx > 0) {
+                // Check bounds? getNodeAt returns nullptr if out of bounds, so upgradeWord handles it.
+                // But we should verify validity to print message? upgradeWord prints if valid.
                 upgradeWord(idx - 1);
             }
         }
         else if (choice == 3) {
-            // DELETE
             listWords();
-            if (words.empty()) continue;
+            if (isEmpty()) continue;
 
             cout << "Enter number to forget (0 to cancel): ";
             int idx;
             cin >> idx;
             if (cin.fail()) { clearInputBuffer(); continue; }
 
-            if (idx > 0 && idx <= (int)words.size()) {
+            if (idx > 0) {
                 forgetWord(idx - 1);
             }
         }

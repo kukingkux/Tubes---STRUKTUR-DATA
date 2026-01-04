@@ -43,56 +43,6 @@ void typeText(const string& text, int delayMs) {
     cout << RESET << "\n";
 }
 
-void manageGrimoire(GameState& state) {
-    while (true) {
-        cout << CYAN "\n=== GRIMOIRE MANAGEMENT ===\n" RESET;
-        cout << "1. View Words (Read)\n";
-        cout << "2. Meditate/Upgrade (Update)\n";
-        cout << "3. Forget Word (Delete)\n";
-        cout << "4. Close Grimoire\n";
-        cout << "Choose: ";
-
-        int choice;
-        cin >> choice;
-
-        if (cin.fail()) {
-            clearInput();
-            continue;
-        }
-
-        if (choice == 1) {
-            state.listWords();
-            cout << "(Press Enter)";
-            cin.ignore(); cin.get();
-        }
-        else if (choice == 2) {
-            state.listWords();
-            if (state.grimoire.empty()) continue;
-            cout << "Enter number to upgrade (0 to cancel): ";
-            int idx;
-            cin >> idx;
-            if (cin.fail()) { clearInput(); continue; }
-            if (idx > 0 && idx <= state.grimoire.size()) {
-                state.upgradeWord(idx - 1);
-            }
-        }
-        else if (choice == 3) {
-            state.listWords();
-            if (state.grimoire.empty()) continue;
-            cout << "Enter number to forget (0 to cancel): ";
-            int idx;
-            cin >> idx;
-            if (cin.fail()) { clearInput(); continue; }
-            if (idx > 0 && idx <= state.grimoire.size()) {
-                state.deleteWord(idx - 1);
-            }
-        }
-        else if (choice == 4) {
-            break;
-        }
-    }
-}
-
 StoryTree::StoryTree() {
     root = buildStory();
 }
@@ -106,10 +56,12 @@ void StoryTree::runNode(StoryNode* node) {
 
     // Handle Events
     if (node->eventId == 1) {
-        state.addWord("FUS", "Unrelenting Force", 10);
+        // Learn Word
+        state.grimoire.learnWord("FUS", "Unrelenting Force", 10);
     }
     else if (node->eventId == 2) {
-        manageGrimoire(state);
+        // Manage Grimoire
+        state.grimoire.openMenu();
     }
 
     typeText("\n" + node->text + "\n");
