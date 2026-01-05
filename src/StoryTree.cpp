@@ -1,53 +1,9 @@
 #include "StoryTree.h"
 #include "BattleSystem.h"
-#include "TextSettings.h"
+#include "utils.h"
 #include <string>
-#include <chrono>
-#include <thread>
 #include <iostream>
-#include <limits>
-#include <fstream>
-#include <sstream>
 using namespace std;
-
-TextSettingsStruct textSettings;
-
-void clearInput() {
-    cin.clear();
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-}
-
-void typeText(const string& text, int delayMs) {
-    cout << textSettings.color;
-
-    if (textSettings.skipTyping) {
-        cout << text << RESET << "\n";
-        return;
-    }
-
-    for (int i = 0; i < text.size(); i++) {
-        cout << text[i] << flush;
-        this_thread::sleep_for(chrono::milliseconds(textSettings.speedMs));
-
-        // skip typing if user presses Enter
-        if (cin.rdbuf()->in_avail() > 0) {
-            cin.get(); // consume input
-            cout << text.substr(i + 1);
-            break;
-        }
-    }
-    cout << RESET << "\n";
-}
-
-string loadStoryText(const string& filepath) {
-    ifstream file(filepath);
-    if (!file.is_open()) {
-        return "[ERROR: Could not load story text from " + filepath + "]\n";
-    }
-    stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
 
 StoryTree::StoryTree(GameState& s) : state(s){
     root = buildStory();
@@ -94,14 +50,32 @@ void StoryTree::runNode(StoryNode* node) {
 
     string displayText = loadStoryText(node->text);
 
+    int wordCount = state.grimoire.getWordCount();
+    bool upgraded = state.grimoire.hasUpgradedWords();
+
     if (node->isEnding) {
-        int words = state.grimoire.getWordCount();
-        if (words == 0) {
+        if (wordCount == 0) {
             displayText += "\n\n(You faced the end with silence in your heart.)";
-        } else if (state.grimoire.hasUpgradedWords()) {
+        } else if (upgraded) {
             displayText += "\n\n(The Words of Power echo in your soul, reshaping the world.)";
         } else {
             displayText += "\n\n(The single Word you learned whispers softly in the dark.)";
+        }
+    } else if (node->text == "story_text/iron_vow.txt") {
+        if (wordCount > 0) {
+            displayText += "\n\n(The Iron Lord eyes you suspiciously. He senses the Thuum within you.)";
+        }
+    } else if (node->text == "story_text/whispering_woods.txt") {
+        if (wordCount > 0) {
+            displayText += "\n\n(The trees seem to lean closer, recognizing a speaker of the Old Tongue.)";
+        }
+    } else if (node->text == "story_text/dragon_battle.txt") {
+         if (wordCount == 0) {
+            displayText += "\n\n(You stand before the beast, a voiceless prey.)";
+        } else if (upgraded) {
+            displayText += "\n\n(Your voice thrums with power. The Dragon acknowledges you as a rival.)";
+        } else {
+            displayText += "\n\n(You hold a fragment of power. The Dragon is amused.)";
         }
     }
 
@@ -132,7 +106,6 @@ void StoryTree::runNode(StoryNode* node) {
 
 
     cout << "\n(Press Enter to continue)";
-    cin.ignore();
     cin.get();
 
     if (node->isEnding) {

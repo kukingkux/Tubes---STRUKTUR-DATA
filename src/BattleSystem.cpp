@@ -1,19 +1,10 @@
 #include "BattleSystem.h"
-#include "TextSettings.h"
+#include "utils.h"
 #include <string>
 #include <iostream>
 #include <cstdlib>
 #include <limits>
 using namespace std;
-
-// Definition matches declaration in TextSettings.h
-void damageOutput(int index, int damage, string enemy) {
-    if (index == 0) {
-        cout << "You dealt " << damage << " damage to " << enemy << "!\n";
-    } else if (index == 1) {
-        cout << "You take " << damage << " damage!\n";
-    }
-}
 
 BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
     bool battleOver = false;
@@ -76,7 +67,7 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
                 if (dragonNextAttackHeavy) {
                     int damage = enemy.maxDmg + 5 + (rand() % 5);
                     typeText(RED "THE DRAGON UNLEASHES FIRE FROM IT'S MOUTH!" RESET);
-                    playerHp -= damage;
+                    playerHP -= damage;
                     damageOutput(1, damage);
                     dragonNextAttackHeavy = false;
                 } else if (action < 30) {
@@ -87,17 +78,17 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
                 } else {
                     int damage = enemy.minDmg + rand() % (enemy.maxDmg - enemy.minDmg + 1);
                     typeText("The Dragon swipes with its claws!");
-                    playerHp -= damage;
+                    playerHP -= damage;
                     damageOutput(1, damage);
                 }
             } else {
                 int damage = enemy.minDmg + rand() % (enemy.maxDmg - enemy.minDmg + 1);
                 typeText(enemy.name + " attacks you!");
-                playerHp -= damage;
+                playerHP -= damage;
                 damageOutput(1, damage);
             }
 
-            if (playerHp <= 0) {
+            if (playerHP <= 0) {
                 battleOver = true;
                 return BATTLE_LOSE;
             }
