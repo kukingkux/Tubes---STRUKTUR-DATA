@@ -1,9 +1,11 @@
 #include "BattleSystem.h"
 #include "utils.h"
+#include "ui.h"
 #include <string>
 #include <iostream>
 #include <cstdlib>
 #include <limits>
+#include <vector>
 using namespace std;
 
 BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
@@ -11,15 +13,20 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
     bool playerTurn = true;
     bool dragonNextAttackHeavy = false;
 
-    typeText("\nA wild " + enemy.name + " appears!\n");
+    UI::printBattleMessage("A wild " + enemy.name + " appears!");
 
     while (!battleOver) {
         if (playerTurn) {
             // PLAYER TURN
-            cout << "\nYour HP: " << playerHP << " | Enemy HP: " << enemy.hp << "\n";
-            cout << "1. Light Attack\n";
-            cout << "2. Heavy Attack\n";
-            cout << "3. Use Words of Power\n";
+            UI::printDivider("BATTLE");
+            cout << "Your HP: " << playerHP << " | Enemy HP: " << enemy.hp << "\n";
+
+            vector<string> options = {
+                "1. Light Attack",
+                "2. Heavy Attack",
+                "3. Use Words of Power"
+            };
+            UI::printMenu(options);
             cout << "Choose your action: ";
 
             int choice;
@@ -34,20 +41,20 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
             int damage = 0;
             if (choice == 1) {
                 damage = 5 + rand() % 6;
-                typeText("You perform a Light Attack!");
+                UI::printBattleMessage("You perform a Light Attack!");
             } else if (choice == 2) {
                 damage = 10 + rand() % 11;
-                typeText("You perform a Heavy Attack!");
+                UI::printBattleMessage("You perform a Heavy Attack!");
             } else if (choice == 3) {
                 int wordDamage = grimoire.useWordInBattle();
                 if (wordDamage > 0) {
                     damage = wordDamage;
-                    typeText("You incant the Words of Power!");
+                    UI::printDialogue("You incant the Words of Power!");
                 } else {
-                    typeText("You fumbled the words...");
+                    UI::printBattleMessage("You fumbled the words...");
                 }
             } else {
-                typeText("You hesitate and stumble.");
+                UI::printBattleMessage("You hesitate and stumble.");
             }
 
             if (damage > 0) {
@@ -66,24 +73,24 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
                 int action = rand() % 100;
                 if (dragonNextAttackHeavy) {
                     int damage = enemy.maxDmg + 5 + (rand() % 5);
-                    typeText(RED "THE DRAGON UNLEASHES FIRE FROM IT'S MOUTH!" RESET);
+                    UI::printBattleMessage(RED "THE DRAGON UNLEASHES FIRE FROM ITS MOUTH!" RESET);
                     playerHP -= damage;
                     damageOutput(1, damage);
                     dragonNextAttackHeavy = false;
                 } else if (action < 30) {
-                    typeText(YELLOW "The Dragon stares at you..." RESET);
+                    UI::printBattleMessage(YELLOW "The Dragon stares at you..." RESET);
                 } else if (action < 60) {
-                    typeText(YELLOW "The Dragon inhales deeply... flames gather in its maw." RESET);
+                    UI::printBattleMessage(YELLOW "The Dragon inhales deeply... flames gather in its maw." RESET);
                     dragonNextAttackHeavy = true;
                 } else {
                     int damage = enemy.minDmg + rand() % (enemy.maxDmg - enemy.minDmg + 1);
-                    typeText("The Dragon swipes with its claws!");
+                    UI::printBattleMessage("The Dragon swipes with its claws!");
                     playerHP -= damage;
                     damageOutput(1, damage);
                 }
             } else {
                 int damage = enemy.minDmg + rand() % (enemy.maxDmg - enemy.minDmg + 1);
-                typeText(enemy.name + " attacks you!");
+                UI::printBattleMessage(enemy.name + " attacks you!");
                 playerHP -= damage;
                 damageOutput(1, damage);
             }

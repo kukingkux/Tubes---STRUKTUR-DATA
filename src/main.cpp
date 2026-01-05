@@ -1,19 +1,23 @@
 #include "StoryTree.h"
 #include "BattleSystem.h"
 #include "utils.h"
+#include "ui.h"
 #include <iostream>
+#include <vector>
+#include <string>
 
 void showMainMenu() {
     int choice;
 
     while (true) {
-        std::cout << CYAN
-        << "\n=== SKJORHEIM ===\n"
-        << "1. Start Game\n"
-        << "2. Text Settings\n"
-        << "3. Exit\n"
-        << RESET
-        << "Choose: ";
+        UI::printTitleArt();
+        std::vector<std::string> options = {
+            "1. Start Game",
+            "2. Text Settings",
+            "3. Exit"
+        };
+        UI::printMenu(options);
+        std::cout << "Choose: ";
 
         std::cin >> choice;
 
@@ -26,32 +30,27 @@ void showMainMenu() {
         if (choice == 1) break;
         if (choice == 2) {
             int c;
-            std::cout << "\nTyping Speed:\n"
-                    << "1. Fast\n"
-                    << "2. Normal\n"
-                    << "3. Slow\n"
-                    << "Choose: ";
+            std::vector<std::string> speedOpts = {"1. Fast", "2. Normal", "3. Slow"};
+            UI::printMenu(speedOpts);
+            std::cout << "Choose Speed: ";
             std::cin >> c;
 
             if (c == 1) textSettings.speedMs = 10;
             if (c == 2) textSettings.speedMs = 25;
             if (c == 3) textSettings.speedMs = 50;
 
-            std::cout << "\nText Color:\n"
-                    << "1. White\n"
-                    << "2. Cyan\n"
-                    << "3. Yellow\n"
-                    << "Choose: ";
+            std::vector<std::string> colorOpts = {"1. White", "2. Cyan", "3. Yellow"};
+            UI::printMenu(colorOpts);
+            std::cout << "Choose Color: ";
             std::cin >> c;
 
             if (c == 1) textSettings.color = WHITE;
             if (c == 2) textSettings.color = CYAN;
             if (c == 3) textSettings.color = YELLOW;
 
-            std::cout << "\nSkip Typing?\n"
-                    << "1. Yes\n"
-                    << "2. No\n"
-                    << "Choose: ";
+            std::vector<std::string> skipOpts = {"1. Yes", "2. No"};
+            UI::printMenu(skipOpts);
+            std::cout << "Skip Typing? ";
             std::cin >> c;
 
             textSettings.skipTyping = (c == 1);

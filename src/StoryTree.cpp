@@ -1,8 +1,10 @@
 #include "StoryTree.h"
 #include "BattleSystem.h"
 #include "utils.h"
+#include "ui.h"
 #include <string>
 #include <iostream>
+#include <vector>
 using namespace std;
 
 StoryTree::StoryTree(GameState& s) : state(s){
@@ -48,6 +50,18 @@ void StoryTree::runNode(StoryNode* node) {
         state.grimoire.openMenu();
     }
 
+    if (node->text == "story_text/dragon_battle.txt") {
+        UI::printDragonArt();
+    } else if (node->text == "story_text/campfire.txt") {
+        UI::printCampfireArt();
+    } else if (node->text == "story_text/ending_order.txt") {
+        UI::printEndingArt("ORDER");
+    } else if (node->text == "story_text/ending_chaos.txt") {
+        UI::printEndingArt("CHAOS");
+    } else if (node->text == "story_text/ending_balance.txt") {
+        UI::printEndingArt("BALANCE");
+    }
+
     string displayText = loadStoryText(node->text);
 
     int wordCount = state.grimoire.getWordCount();
@@ -79,7 +93,7 @@ void StoryTree::runNode(StoryNode* node) {
         }
     }
 
-    typeText("\n" + displayText + "\n");
+    UI::printNarration(displayText);
 
     if (node->hasBattle) {
         Enemy enemy;
@@ -96,25 +110,27 @@ void StoryTree::runNode(StoryNode* node) {
         BattleResult result = startBattle(state.health, enemy, state.grimoire);
 
         if (result == BATTLE_LOSE) {
-            typeText("\nYour heads ringing and your vision slowly fades to black...\n");
-            cout << "\n=== GAME OVER ===\n";
+            UI::printNarration("Your heads ringing and your vision slowly fades to black...");
+            UI::printSystemMessage("GAME OVER");
             exit(0);
         } else {
-            typeText(GREEN "\nVictory Achieved!\n" RESET);
+            UI::printSystemMessage("Victory Achieved!");
         }
     }
 
 
-    cout << "\n(Press Enter to continue)";
+    UI::printSystemMessage("Press Enter to continue");
     cin.get();
 
     if (node->isEnding) {
-        cout << "\n=== TO BE CONTINUED. . . ===\n";
+        UI::printSystemMessage("TO BE CONTINUED. . .");
         return;
     }
 
-    cout << "1. " << node->choiceA << "\n";
-    cout << "2. " << node->choiceB << "\n";
+    std::vector<std::string> options;
+    options.push_back("1. " + node->choiceA);
+    options.push_back("2. " + node->choiceB);
+    UI::printMenu(options);
     cout << "Choose: ";
 
     int choice;

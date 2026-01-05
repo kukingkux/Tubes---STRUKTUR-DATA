@@ -1,7 +1,9 @@
 #include "Grimoire.h"
 #include "utils.h"
+#include "ui.h"
 #include <iostream>
 #include <limits>
+#include <vector>
 using namespace std;
 
 static void clearInputBuffer() {
@@ -47,11 +49,11 @@ void Grimoire::learnWord(const std::string& name, const std::string& description
     GrimoireNode* newNode = new GrimoireNode(newWord);
     newNode->next = head;
     head = newNode;
-    cout << "\n[NEW WORD LEARNED]: " << name << "\n";
+    UI::printSystemMessage("NEW WORD LEARNED: " + name);
 }
 
 void Grimoire::listWords() const {
-    cout << "\n=== GRIMOIRE ===\n";
+    UI::printHeader("GRIMOIRE");
     if (head == nullptr) {
         cout << "No words learned yet.\n";
         return;
@@ -61,12 +63,12 @@ void Grimoire::listWords() const {
     int index = 1;
     while (current != nullptr) {
         cout << index << ". " << current->data.name
-            << "(Lvl " << current->data.level << "): "
+            << " (Lvl " << current->data.level << "): "
             << current->data.description << " [Power: " << current->data.power << "]\n";
         current = current->next;
         index++;
     }
-    cout << "================\n";
+    UI::printDivider();
 }
 
 GrimoireNode* Grimoire::getNodeAt(int index) const {
@@ -87,7 +89,7 @@ void Grimoire::upgradeWord(int index) {
     if (node) {
         node->data.level++;
         node->data.power += 5;
-        cout << "\n[UPGRADE]: " << node->data.name << " is now level " << node->data.level << "!\n";
+        UI::printSystemMessage("UPGRADE: " + node->data.name + " is now level " + std::to_string(node->data.level) + "!");
     }
 }
 
@@ -110,14 +112,14 @@ void Grimoire::forgetWord(int index) {
     }
 
     if (toDelete) {
-        cout << "\n[FORGOTTEN]: " << toDelete->data.name << " fades from your memory.\n";
+        UI::printSystemMessage("FORGOTTEN: " + toDelete->data.name + " fades from your memory.");
         delete toDelete;
     }
 }
 
 int Grimoire::useWordInBattle() {
     if (isEmpty()) {
-        cout << "You have no words to use!\n";
+        UI::printBattleMessage("You have no words to use!");
         return 0;
     }
 
@@ -136,7 +138,7 @@ int Grimoire::useWordInBattle() {
 
     GrimoireNode* node = getNodeAt(idx - 1);
     if (node) {
-        cout << "You channel the energy of " << node->data.name << "...\n";
+        UI::printBattleMessage("You channel the energy of " + node->data.name + "...");
         return node->data.power;
     }
 
@@ -145,11 +147,14 @@ int Grimoire::useWordInBattle() {
 
 void Grimoire::openMenu() {
     while(true) {
-         cout << CYAN "\n=== GRIMOIRE MANAGEMENT ===\n" RESET;
-        cout << "1. View Words (Read)\n";
-        cout << "2. Meditate/Upgrade (Update)\n";
-        cout << "3. Forget Word (Delete)\n";
-        cout << "4. Close Grimoire\n";
+        vector<string> options = {
+            "1. View Words (Read)",
+            "2. Meditate/Upgrade (Update)",
+            "3. Forget Word (Delete)",
+            "4. Close Grimoire"
+        };
+        UI::printHeader("GRIMOIRE MANAGEMENT");
+        UI::printMenu(options);
         cout << "Choose: ";
         
         int choice;
