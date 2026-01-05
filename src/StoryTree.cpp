@@ -25,13 +25,13 @@ void typeText(const string& text, int delayMs) {
         return;
     }
 
-    for (int i = 0; i < (int)text.length(); i++) {
+    for (int i = 0; i < text.size(); i++) {
         cout << text[i] << flush;
-        this_thread::sleep_for(chrono::milliseconds(delayMs));
+        this_thread::sleep_for(chrono::milliseconds(textSettings.speedMs));
 
         // skip typing if user presses Enter
         if (cin.rdbuf()->in_avail() > 0) {
-            cin.ignore(); // consume input
+            cin.get(); // consume input
             cout << text.substr(i + 1);
             break;
         }
@@ -105,7 +105,7 @@ void StoryTree::runNode(StoryNode* node) {
         }
     }
 
-    typeText("\n" + node->text + "\n");
+    typeText("\n" + displayText + "\n");
 
     if (node->hasBattle) {
         Enemy enemy;

@@ -40,6 +40,7 @@ bool Grimoire::hasUpgradedWords() const {
         if (current->data.level > 1) return true;
         current = current->next;
     }
+    return false;
 }
 
 void Grimoire::learnWord(const std::string& name, const std::string& description, int power) {
