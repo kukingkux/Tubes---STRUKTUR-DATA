@@ -1,9 +1,11 @@
 #include "BattleSystem.h"
 #include "utils.h"
+#include "ui.h"
 #include <string>
 #include <iostream>
 #include <cstdlib>
 #include <limits>
+#include <vector>
 using namespace std;
 
 BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
@@ -11,16 +13,18 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
     bool playerTurn = true;
     bool dragonNextAttackHeavy = false;
 
-    typeText("\nA wild " + enemy.name + " appears!\n");
+    UI::printSystemMessage("A wild " + enemy.name + " appears!");
 
     while (!battleOver) {
         if (playerTurn) {
             // PLAYER TURN
-            cout << "\nYour HP: " << playerHP << " | Enemy HP: " << enemy.hp << "\n";
-            cout << "1. Light Attack\n";
-            cout << "2. Heavy Attack\n";
-            cout << "3. Use Words of Power\n";
-            cout << "Choose your action: ";
+            UI::printBattleStatus(playerHP, enemy.hp, enemy.name);
+
+            vector<string> options;
+            options.push_back("Light Attack");
+            options.push_back("Heavy Attack");
+            options.push_back("Use Words of Power");
+            UI::printMenu(options);
 
             int choice;
             cin >> choice;
@@ -66,7 +70,7 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
                 int action = rand() % 100;
                 if (dragonNextAttackHeavy) {
                     int damage = enemy.maxDmg + 5 + (rand() % 5);
-                    typeText(RED "THE DRAGON UNLEASHES FIRE FROM IT'S MOUTH!" RESET);
+                    UI::printSystemMessage("THE DRAGON UNLEASHES FIRE FROM IT'S MOUTH!");
                     playerHP -= damage;
                     damageOutput(1, damage);
                     dragonNextAttackHeavy = false;
