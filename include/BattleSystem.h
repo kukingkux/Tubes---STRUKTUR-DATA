@@ -1,5 +1,6 @@
 #ifndef BATTLESYSTEM_H_INCLUDED
 #define BATTLESYSTEM_H_INCLUDED
+#include "Grimoire.h"
 #include <string>
 
 enum BattleResult {
@@ -15,6 +16,6 @@ struct Enemy {
     int type; // 1=Cultist, 2=Bandit/Wolf, 3=Dragon 
 };
 
-BattleResult startBattle(int& playerHp, Enemy enemy);
+BattleResult startBattle(int& playerHp, Enemy enemy, Grimoire& grimoire);
 
 #endif
