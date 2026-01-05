@@ -1,5 +1,6 @@
 #ifndef BATTLESYSTEM_H_INCLUDED
 #define BATTLESYSTEM_H_INCLUDED
+#include "Grimoire.h"
 #include <string>
 #include "Grimoire.h"
 
@@ -16,7 +17,6 @@ struct Enemy {
     int type; // 1=Cultist, 2=Bandit/Wolf, 3=Dragon
 };
 
-// Updated signature to include Grimoire
 BattleResult startBattle(int& playerHp, Enemy enemy, Grimoire& grimoire);
 
 #endif

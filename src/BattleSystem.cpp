@@ -15,8 +15,7 @@ void damageOutput(int index, int damage, string enemy) {
     }
 }
 
-// Updated signature
-BattleResult startBattle(int& playerHp, Enemy enemy, Grimoire& grimoire) {
+BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
     bool battleOver = false;
     bool playerTurn = true;
     bool dragonNextAttackHeavy = false;
@@ -26,12 +25,10 @@ BattleResult startBattle(int& playerHp, Enemy enemy, Grimoire& grimoire) {
     while (!battleOver) {
         if (playerTurn) {
             // PLAYER TURN
-            cout << "\nYour HP: " << playerHp << " | Enemy HP: " << enemy.hp << "\n";
+            cout << "\nYour HP: " << playerHP << " | Enemy HP: " << enemy.hp << "\n";
             cout << "1. Light Attack\n";
             cout << "2. Heavy Attack\n";
-            if (!grimoire.isEmpty()) {
-                cout << "3. Use Word of Power\n";
-            }
+            cout << "3. Use Words of Power\n";
             cout << "Choose your action: ";
 
             int choice;
@@ -50,13 +47,13 @@ BattleResult startBattle(int& playerHp, Enemy enemy, Grimoire& grimoire) {
             } else if (choice == 2) {
                 damage = 10 + rand() % 11;
                 typeText("You perform a Heavy Attack!");
-            } else if (choice == 3 && !grimoire.isEmpty()) {
+            } else if (choice == 3) {
                 int wordDamage = grimoire.useWordInBattle();
                 if (wordDamage > 0) {
                     damage = wordDamage;
-                    typeText("You shout the Word of Power!");
+                    typeText("You incant the Words of Power!");
                 } else {
-                    typeText("You fumble the words...");
+                    typeText("You fumbled the words...");
                 }
             } else {
                 typeText("You hesitate and stumble.");

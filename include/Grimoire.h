@@ -10,36 +10,34 @@ struct WordOfPower {
     int level;
 };
 
-// ADT: Single Linked List Node
 struct GrimoireNode {
     WordOfPower data;
     GrimoireNode* next;
 
-    GrimoireNode(WordOfPower val) : data(val), next(nullptr) {}
+    GrimoireNode(WordOfPower val) : data(val), next(nullptr) {} // Constructor Node
 };
 
 class Grimoire {
 public:
     Grimoire();
-    ~Grimoire(); // Destructor to clean up nodes
+    ~Grimoire(); // Destructor
 
     void learnWord(const std::string& name, const std::string& description, int power);
-    void openMenu();
+    void openMenu(); // Menu for Read, Update, Delete
 
-    // Battle Integration
     int useWordInBattle();
 
-    // Public for inspection if needed, but mainly used internally
     bool isEmpty() const;
+    int getWordCount() const;
+    bool hasUpgradedWords() const;
 
 private:
-    GrimoireNode* head; // Head of the linked list
+    GrimoireNode* head;
 
-    void listWords() const;
-    void upgradeWord(int index); // Index logic adapted for Linked List traversal
-    void forgetWord(int index);
+    void listWords() const; // Read
+    void upgradeWord(int index); // Update
+    void forgetWord(int index); // Delete
 
-    // Helper to get node at index (0-based)
     GrimoireNode* getNodeAt(int index) const;
 };
 
