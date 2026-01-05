@@ -299,6 +299,8 @@ StoryNode* StoryTree::buildStory() {
         false, 0, false, 0 // No event yet
     };
 
+    campfire->right = pathChoice;
+
     // Wolf Battle
     auto wolfBattle = new StoryNode{
         "story_text/wolf_battle.txt",

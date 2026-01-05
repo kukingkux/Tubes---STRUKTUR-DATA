@@ -2,7 +2,6 @@
 #define GRIMOIRE_H_INCLUDED
 
 #include <string>
-#include <vector>
 
 struct WordOfPower {
     std::string name;

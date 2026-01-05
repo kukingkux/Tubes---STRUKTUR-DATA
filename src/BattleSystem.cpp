@@ -6,9 +6,8 @@
 #include <limits>
 using namespace std;
 
+// Definition matches declaration in TextSettings.h
 void damageOutput(int index, int damage, string enemy) {
-    // 0 = Player Dmg
-    // 1 = Enemy Dmg
     if (index == 0) {
         cout << "You dealt " << damage << " damage to " << enemy << "!\n";
     } else if (index == 1) {
@@ -43,10 +42,10 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
 
             int damage = 0;
             if (choice == 1) {
-                damage = 5 + rand() % 6; // Light Attack: 5-10 dmg
+                damage = 5 + rand() % 6;
                 typeText("You perform a Light Attack!");
             } else if (choice == 2) {
-                damage = 10 + rand() % 11; // Heavy Attack: 10-20 dmg
+                damage = 10 + rand() % 11;
                 typeText("You perform a Heavy Attack!");
             } else if (choice == 3) {
                 int wordDamage = grimoire.useWordInBattle();
@@ -73,13 +72,13 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
         } else {
             // ENEMY TURN
             if (enemy.type == 3) {
-                // Dragon AI
                 int action = rand() % 100;
                 if (dragonNextAttackHeavy) {
                     int damage = enemy.maxDmg + 5 + (rand() % 5);
                     typeText(RED "THE DRAGON UNLEASHES FIRE FROM IT'S MOUTH!" RESET);
-                    playerHP -= damage;
+                    playerHp -= damage;
                     damageOutput(1, damage);
+                    dragonNextAttackHeavy = false;
                 } else if (action < 30) {
                     typeText(YELLOW "The Dragon stares at you..." RESET);
                 } else if (action < 60) {
@@ -87,18 +86,18 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
                     dragonNextAttackHeavy = true;
                 } else {
                     int damage = enemy.minDmg + rand() % (enemy.maxDmg - enemy.minDmg + 1);
-                    playerHP -= damage;
+                    typeText("The Dragon swipes with its claws!");
+                    playerHp -= damage;
                     damageOutput(1, damage);
                 }
             } else {
-                // Normal AI
-                int damage = enemy.minDmg + rand() % (enemy.maxDmg - enemy.minDmg + 1);;
+                int damage = enemy.minDmg + rand() % (enemy.maxDmg - enemy.minDmg + 1);
                 typeText(enemy.name + " attacks you!");
-                playerHP -= damage;
+                playerHp -= damage;
                 damageOutput(1, damage);
             }
 
-            if (playerHP <= 0) {
+            if (playerHp <= 0) {
                 battleOver = true;
                 return BATTLE_LOSE;
             }
