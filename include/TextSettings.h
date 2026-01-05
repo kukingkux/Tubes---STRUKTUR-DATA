@@ -19,7 +19,6 @@ struct TextSettingsStruct {
 // Global settings instance
 extern TextSettingsStruct textSettings;
 
-void typeText(const std::string& text, int delayMs = 25);
 void damageOutput(int index, int damage, std::string enemy = "");
 
 #endif

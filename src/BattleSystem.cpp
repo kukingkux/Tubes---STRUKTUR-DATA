@@ -1,5 +1,6 @@
 #include "BattleSystem.h"
 #include "TextSettings.h"
+#include "utils.h"
 #include <string>
 #include <iostream>
 #include <cstdlib>

@@ -1,13 +1,9 @@
 #include "Grimoire.h"
 #include "TextSettings.h"
+#include "utils.h"
 #include <iostream>
 #include <limits>
 using namespace std;
-
-static void clearInputBuffer() {
-    cin.clear();
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-}
 
 Grimoire::Grimoire() : head(nullptr) {}
 
@@ -129,7 +125,7 @@ int Grimoire::useWordInBattle() {
     cin >> idx;
 
     if (cin.fail()) {
-        clearInputBuffer();
+        clearInput();
         return 0;
     }
 
@@ -157,7 +153,7 @@ void Grimoire::openMenu() {
         cin >> choice;
         
         if (cin.fail()) {
-            clearInputBuffer();
+            clearInput();
             continue;
         }
 
@@ -173,7 +169,7 @@ void Grimoire::openMenu() {
             int idx;
             cin >> idx;
             if (cin.fail()) {
-                clearInputBuffer();
+                clearInput();
                 continue;
             }
 
@@ -188,7 +184,7 @@ void Grimoire::openMenu() {
             int idx;
             cin >> idx;
             if (cin.fail()) {
-                clearInputBuffer();
+                clearInput();
                 continue;
             }
 

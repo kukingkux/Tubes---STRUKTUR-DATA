@@ -1,59 +1,15 @@
 #include "StoryTree.h"
 #include "BattleSystem.h"
 #include "TextSettings.h"
+#include "utils.h"
 #include <string>
-#include <chrono>
-#include <thread>
 #include <iostream>
-#include <limits>
-#include <fstream>
-#include <sstream>
 
 using namespace std;
 
 TextSettingsStruct textSettings;
 
-void clearInput() {
-    cin.clear();
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-}
-
-void typeText(const string& text, int delayMs) {
-    cout << textSettings.color;
-
-    if (textSettings.skipTyping) {
-        cout << text << RESET << "\n";
-        return;
-    }
-
-    for (int i = 0; i < (int)text.length(); i++) {
-        cout << text[i] << flush;
-        this_thread::sleep_for(chrono::milliseconds(delayMs));
-
-        // skip typing if user presses Enter
-        if (cin.rdbuf()->in_avail() > 0) {
-            cin.ignore(); // consume input
-            cout << text.substr(i + 1);
-            break;
-        }
-    }
-    cout << RESET << "\n";
-}
-
-string loadStoryText(const string& filepath) {
-    ifstream file(filepath);
-    if (!file.is_open()) {
-        return "[ERROR: Could not load story text from " + filepath + "]";
-    }
-    stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
-
 StoryTree::StoryTree(GameState& s) : state(s){
-    if (getenv("SKJORHEIM_TEST_MODE")) {
-        textSettings.skipTyping = true;
-    }
     root = buildStory();
 }
 
@@ -147,15 +103,28 @@ void StoryTree::runNode(StoryNode* node) {
 
     string displayText = loadStoryText(node->text);
 
-    // Add flavor text to endings based on Grimoire
+    // Add flavor text to endings and key moments based on Grimoire
+    int words = state.grimoire.getWordCount();
+    bool upgraded = state.grimoire.hasUpgradedWords();
+
     if (node->isEnding) {
-        int words = state.grimoire.getWordCount();
         if (words == 0) {
             displayText += "\n\n(You faced the end with silence in your heart.)";
-        } else if (state.grimoire.hasUpgradedWords()) {
+        } else if (upgraded) {
              displayText += "\n\n(The Words of Power echo in your soul, reshaping the world.)";
         } else {
              displayText += "\n\n(The single Word you learned whispers softly in the dark.)";
+        }
+    } else {
+        // Flavor for specific nodes
+        if (displayText.find("Commander Hrolf") != string::npos) { // Iron Vow
+             if (words > 0) displayText += "\n(He pauses, his eyes narrowing as if hearing a faint hum from your presence.)";
+        }
+        else if (displayText.find("hooded scholar") != string::npos) { // Whispering Woods
+             if (words > 0) displayText += "\n(The scholar smiles, sensing the rune etched in your mind.)";
+        }
+        else if (displayText.find("wolf lies still") != string::npos) { // Path Choice
+             if (words > 0) displayText += "\n(The air around you feels charged, reacting to the victory.)";
         }
     }
 
