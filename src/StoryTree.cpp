@@ -5,11 +5,17 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
+#include <limits>
 using namespace std;
 
-int playerHP = 100;
-
+// TextSettings is defined in another translation unit (or locally here if Unity build)
+// But we should follow the pattern.
 TextSettingsStruct textSettings;
+
+void clearInput() {
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
 
 void typeText(const string& text, int delayMs) {
     cout << textSettings.color;
@@ -19,14 +25,14 @@ void typeText(const string& text, int delayMs) {
         return;
     }
 
-    for (char c : text) {
-        cout << c << flush;
-        this_thread::sleep_for(chrono::milliseconds(delayMs));
+    for (int i = 0; i < (int)text.length(); i++) {
+        cout << text[i] << flush;
+        this_thread::sleep_for(chrono::milliseconds(textSettings.speedMs));
 
         // skip typing if user presses Enter
         if (cin.rdbuf()->in_avail() > 0) {
             cin.ignore(); // consume input
-            cout << text.substr(&c - &text[0] + 1);
+            cout << text.substr(i + 1);
             break;
         }
     }
@@ -45,6 +51,15 @@ void StoryTree::start() {
 void StoryTree::runNode(StoryNode* node) {
     if (!node) return;
 
+    // EVENT HANDLING
+    if (node->eventId == 1) {
+        // Learn Word
+        state.grimoire.learnWord("FUS", "Unrelenting Force", 10);
+    } else if (node->eventId == 2) {
+        // Manage Grimoire
+        state.grimoire.openMenu();
+    }
+
     typeText("\n" + node->text + "\n");
 
     if (node->hasBattle) {
@@ -59,7 +74,8 @@ void StoryTree::runNode(StoryNode* node) {
             enemy = {"Phalanx the Ancient Dragon", 100, 10, 20};
         }
 
-        BattleResult result = startBattle(state.health, enemy);
+        // Updated call to pass Grimoire
+        BattleResult result = startBattle(state.health, enemy, state.grimoire);
 
         if (result == BATTLE_LOSE) {
             typeText("\nYour heads ringing and your vision slowly fades to black...\n");
@@ -87,6 +103,11 @@ void StoryTree::runNode(StoryNode* node) {
     int choice;
     cin >> choice;
 
+    if (cin.fail()) {
+        clearInput();
+        choice = 0;
+    }
+
     if (choice == 1) {
         runNode(node->left);
     } else {
@@ -107,7 +128,7 @@ StoryNode* StoryTree::buildStory() {
         "You are crowned a savior.\n"
         "But in quieter tongues,\n"
         "they name you the slayer of miracles.",
-        "", "", nullptr, nullptr, false, 0, true
+        "", "", nullptr, nullptr, false, 0, true, 0
     };
 
     auto endingChaos = new StoryNode{
@@ -120,7 +141,7 @@ StoryNode* StoryTree::buildStory() {
         "Crown and city alike are reduced to ember.\n\n"
         "From ruin, a savage age awakens.\n"
         "And the world remembers flame.",
-        "", "", nullptr, nullptr, false, 0, true
+        "", "", nullptr, nullptr, false, 0, true, 0
     };
 
     auto endingBalance = new StoryNode{
@@ -136,7 +157,7 @@ StoryNode* StoryTree::buildStory() {
         "trembling, hopeful, unbroken.\n\n"
         "You depart without song or crown,\n"
         "warden of a fragile dawn.",
-        "", "", nullptr, nullptr, false, 0, true
+        "", "", nullptr, nullptr, false, 0, true, 0
     };
 
     // === DRAGON ===
@@ -150,7 +171,7 @@ StoryNode* StoryTree::buildStory() {
         "The summit is swallowed whole.",
         "Continue", "Continue",
         endingOrder, endingOrder,
-        true, 3, false
+        true, 3, false, 0
     };
 
     // Listen Branch
@@ -161,7 +182,7 @@ StoryNode* StoryTree::buildStory() {
         "but as one who yet chooses.",
         "Accept the Chaos", "Seek Balance",
         endingChaos, endingBalance,
-        false, 0, false
+        false, 0, false, 0
     };
 
    // Dragon Choice
@@ -176,7 +197,7 @@ StoryNode* StoryTree::buildStory() {
         "AND LEAVE THE WEAVE UNTO FATE.”",
         "Challenge the Dragon", "Listen to the Dragon",
         dragonBattleNode, listenBranch,
-        false, 0, false
+        false, 0, false, 0
     };
 
     // Dragon Intro
@@ -193,7 +214,7 @@ StoryNode* StoryTree::buildStory() {
         "“YOU HAVE WALKED FAR, MORTAL.”",
         "Step forward", "Hold your ground",
         dragonChoice, dragonChoice,
-        false, 0, false
+        false, 0, false, 0
     };
 
     // === Story ===
@@ -207,7 +228,7 @@ StoryNode* StoryTree::buildStory() {
         "“Swear your blade, and stand against the beast.”",
         "Pledge loyalty (Order +)", "Remain independent",
         dragonIntro, dragonIntro,
-        false, 0, false
+        false, 0, false, 0
     };
 
     auto whisperingWoods = new StoryNode{
@@ -220,7 +241,35 @@ StoryNode* StoryTree::buildStory() {
         "To know it, is to survive what comes.”",
         "Study the runes (Knowledge +)", "Ignore the heresy",
         dragonIntro, dragonIntro,
-        false, 0, false
+        false, 0, false, 0
+    };
+
+    // === CRUD NODES ===
+    auto campfire = new StoryNode{
+        "CAMPFIRE\n\n"
+        "You find a safe spot to rest. The fire crackles warmly.\n"
+        "This is a good time to reflect on your Words of Power.",
+        "Meditate (Open Grimoire)", "Continue Journey",
+        nullptr, nullptr,
+        false, 0, false, 0
+    };
+
+    auto grimoireNode = new StoryNode{
+        "You sit by the fire and open your mind to the Words.",
+        "Back to Fire", "Back to Fire",
+        campfire, campfire,
+        false, 0, false, 2 // EVENT 2: Manage Grimoire
+    };
+    campfire->left = grimoireNode;
+
+    auto runeStone = new StoryNode{
+        "ANCIENT RUNE STONE\n\n"
+        "You stumble upon a glowing stone pulsating with energy.\n"
+        "It etches a memory into your mind.\n"
+        "You have learned a Word of Power!",
+        "Touch the Stone", "Examine closely",
+        campfire, campfire,
+        false, 0, false, 1 // EVENT 1: Learn Word
     };
 
     // Path Choice
@@ -233,8 +282,10 @@ StoryNode* StoryTree::buildStory() {
         "The choice is yours.",
         "Go West (Fortress)", "Go East (Woods)",
         ironVow, whisperingWoods,
-        false, 0, false
+        false, 0, false, 0
     };
+
+    campfire->right = pathChoice;
 
     // Wolf Battle
     auto wolfBattle = new StoryNode{
@@ -244,8 +295,8 @@ StoryNode* StoryTree::buildStory() {
         "eyes wild with hunger.\n\n"
         "The hunt is joined.",
         "Continue", "Continue",
-        pathChoice, pathChoice,
-        true, 2, false
+        runeStone, runeStone, // Redirect to Rune Stone
+        true, 2, false, 0
     };
 
     // Start
@@ -260,7 +311,7 @@ StoryNode* StoryTree::buildStory() {
         "you must endure.",
         "Stand up", "Crawl forward",
         wolfBattle, wolfBattle,
-        false, 0, false
+        false, 0, false, 0
     };
 
     return startNode;

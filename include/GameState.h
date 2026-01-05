@@ -1,6 +1,7 @@
 #ifndef GAMESTATE_H_INCLUDED
 #define GAMESTATE_H_INCLUDED
 #include <string>
+#include "Grimoire.h"
 
 struct GameState {
     // Player
@@ -16,6 +17,9 @@ struct GameState {
     bool joinedOrder = false;
     bool joinedScholars = false;
     bool helpedRebels = false;
+
+    // CRUD: Words of Power
+    Grimoire grimoire;
 };
 
 #endif
