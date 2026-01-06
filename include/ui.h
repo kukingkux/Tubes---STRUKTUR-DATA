@@ -7,12 +7,13 @@
 namespace UI {
     // Formatting
     void printHeader(const std::string& title);
-    void printDivider();
+    void printDivider(const std::string& label = "");
     void printMenu(const std::vector<std::string>& options);
     void printNarration(const std::string& text);
     void printDialogue(const std::string& speaker, const std::string& text);
     void printBattleStatus(int playerHP, int enemyHP, const std::string& enemyName);
     void printSystemMessage(const std::string& msg);
+    void printBattleMessage(const std::string& msg);
 
     // ASCII Art
     void printTitle();
