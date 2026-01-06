@@ -13,7 +13,7 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
     bool playerTurn = true;
     bool dragonNextAttackHeavy = false;
 
-    UI::printSystemMessage("A wild " + enemy.name + " appears!");
+    UI::printBattleMessage("A wild " + enemy.name + " appears!");
 
     while (!battleOver) {
         if (playerTurn) {
@@ -38,25 +38,25 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
             int damage = 0;
             if (choice == 1) {
                 damage = 5 + rand() % 6;
-                typeText("You perform a Light Attack!");
+                UI::printBattleMessage("You perform a Light Attack!");
             } else if (choice == 2) {
                 damage = 10 + rand() % 11;
-                typeText("You perform a Heavy Attack!");
+                UI::printBattleMessage("You perform a Heavy Attack!");
             } else if (choice == 3) {
                 int wordDamage = grimoire.useWordInBattle();
                 if (wordDamage > 0) {
                     damage = wordDamage;
-                    typeText("You incant the Words of Power!");
+                    UI::printBattleMessage("You incant the Words of Power!");
                 } else {
-                    typeText("You fumbled the words...");
+                    UI::printBattleMessage("You fumbled the words...");
                 }
             } else {
-                typeText("You hesitate and stumble.");
+                UI::printBattleMessage("You hesitate and stumble.");
             }
 
             if (damage > 0) {
                 enemy.hp -= damage;
-                damageOutput(0, damage, enemy.name);
+                UI::printBattleMessage("You dealt " + to_string(damage) + " damage to " + enemy.name + "!");
             }
 
             if (enemy.hp <= 0) {
@@ -70,26 +70,26 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
                 int action = rand() % 100;
                 if (dragonNextAttackHeavy) {
                     int damage = enemy.maxDmg + 5 + (rand() % 5);
-                    UI::printSystemMessage("THE DRAGON UNLEASHES FIRE FROM IT'S MOUTH!");
+                    UI::printBattleMessage("THE DRAGON UNLEASHES FIRE FROM IT'S MOUTH!");
                     playerHP -= damage;
-                    damageOutput(1, damage);
+                    UI::printBattleMessage("You take " + to_string(damage) + " damage!");
                     dragonNextAttackHeavy = false;
                 } else if (action < 30) {
-                    typeText(YELLOW "The Dragon stares at you..." RESET);
+                    UI::printBattleMessage(YELLOW "The Dragon stares at you..." RESET);
                 } else if (action < 60) {
-                    typeText(YELLOW "The Dragon inhales deeply... flames gather in its maw." RESET);
+                    UI::printBattleMessage(YELLOW "The Dragon inhales deeply... flames gather in its maw." RESET);
                     dragonNextAttackHeavy = true;
                 } else {
                     int damage = enemy.minDmg + rand() % (enemy.maxDmg - enemy.minDmg + 1);
-                    typeText("The Dragon swipes with its claws!");
+                    UI::printBattleMessage("The Dragon swipes with its claws!");
                     playerHP -= damage;
-                    damageOutput(1, damage);
+                    UI::printBattleMessage("You take " + to_string(damage) + " damage!");
                 }
             } else {
                 int damage = enemy.minDmg + rand() % (enemy.maxDmg - enemy.minDmg + 1);
-                typeText(enemy.name + " attacks you!");
+                UI::printBattleMessage(enemy.name + " attacks you!");
                 playerHP -= damage;
-                damageOutput(1, damage);
+                UI::printBattleMessage("You take " + to_string(damage) + " damage!");
             }
 
             if (playerHP <= 0) {
