@@ -45,6 +45,6 @@ namespace UI {
 
     void printBattleMessage(const std::string& msg) {
         std::cout << "\n" << RED << "[BATTLE]"<< RESET;
-        typeText(msg;)
+        typeText(msg);
     }
 };
