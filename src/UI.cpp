@@ -28,6 +28,11 @@ namespace UI {
         std::cout << textSettings.color << "Choose: " << RESET;
     }
 
+    void printNarration(const std::string& text) {
+        std::cout << "\n";
+        typeText(text);
+    }
+
     void printDialogue(const std::string& speaker, const std::string& text) {
         std::cout << "\n" << CYAN << "[" << speaker << "]" << RESET << "\n";
         typeText(textSettings.color + "\"" + text + "\"" + RESET);

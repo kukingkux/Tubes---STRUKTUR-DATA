@@ -12,8 +12,8 @@ namespace UI {
     void printNarration(const std::string& text);
     void printDialogue(const std::string& speaker, const std::string& text);
     void printBattleStatus(int playerHP, int enemyHP, const std::string& enemyName);
-    void printSystemMessage(const std::string msg);
-    void printBattleMessage(const std::string msg);
+    void printSystemMessage(const std::string& msg);
+    void printBattleMessage(const std::string& msg);
 
     // ASCII Art
     void printTitle();

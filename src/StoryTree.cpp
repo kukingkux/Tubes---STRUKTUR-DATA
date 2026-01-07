@@ -10,7 +10,6 @@
 #include <limits>
 #include <fstream>
 #include <sstream>
-using namespace std;
 
 StoryTree::StoryTree(GameState& s) : state(s){
     root = buildStory();
@@ -68,7 +67,7 @@ void StoryTree::runNode(StoryNode* node) {
         UI::printEnding("BALANCE");
     }
 
-    string displayText = loadStoryText(node->text);
+    std::string displayText = loadStoryText(node->text);
 
     int wordCount = state.grimoire.getWordCount();
     bool upgraded = state.grimoire.hasUpgradedWords();
@@ -100,14 +99,14 @@ void StoryTree::runNode(StoryNode* node) {
     }
 
     // Dialogue Parsing
-    stringstream ss(displayText);
-    string line;
+    std::stringstream ss(displayText);
+    std::string line;
     while(getline(ss, line, '\n')) {
         if (line.empty()) continue;
 
         if (!line.empty() && line.back() == '\r') line.pop_back();
 
-        if (line.find("“") != string::npos || line.find("\"") != string::npos) {
+        if (line.find("“") != std::string::npos || line.find("\"") != std::string::npos) {
             UI::printDialogue("???", line);
         } else {
             UI::printNarration(line);
@@ -138,22 +137,22 @@ void StoryTree::runNode(StoryNode* node) {
     }
 
 
-    cout << "\n(Press Enter to continue)\n";
-    cin.get();
+    std::cout << "\n(Press Enter to continue)\n";
+    std::cin.get();
 
     if (node->isEnding) {
         UI::printHeader("=== TO BE CONTINUED. . . ===");
         return;
     }
     
-    vector<string> options;
+    std::vector<std::string> options;
     options.push_back(node->choiceA);
     options.push_back(node->choiceB);
     UI::printMenu(options);
     int choice;
-    cin >> choice;
+    std::cin >> choice;
 
-    if (cin.fail()) {
+    if (std::cin.fail()) {
         clearInput();
         choice = 0;
     }

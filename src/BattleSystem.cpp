@@ -6,7 +6,6 @@
 #include <cstdlib>
 #include <limits>
 #include <vector>
-using namespace std;
 
 BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
     bool battleOver = false;
@@ -19,18 +18,18 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
         if (playerTurn) {
             // PLAYER TURN
             UI::printBattleStatus(playerHP, enemy.hp, enemy.name);
-            vector<string> options;
+            std::vector<std::string> options;
             options.push_back("Light Attack");
             options.push_back("Heavy Attack");
             options.push_back("Use Words of Power");
             UI::printMenu(options);
 
             int choice;
-            cin >> choice;
+            std::cin >> choice;
 
-            if (cin.fail()) {
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 choice = 0;
             }
 
