@@ -5,6 +5,7 @@
 #include <vector>
 
 namespace UI {
+    // Formatting
     void printHeader(const std::string& title);
     void printDivider(const std::string& label = "");
     void printMenu(const std::vector<std::string>& options);
@@ -13,6 +14,12 @@ namespace UI {
     void printBattleStatus(int playerHP, int enemyHP, const std::string& enemyName);
     void printSystemMessage(const std::string msg);
     void printBattleMessage(const std::string msg);
+
+    // ASCII Art
+    void printTitle();
+    void printDragon();
+    void printCampfire();
+    void printEnding(const std::string& ending);
 }
 
 #endif

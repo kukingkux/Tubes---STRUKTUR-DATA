@@ -4,6 +4,8 @@
 #include <iomanip>
 
 namespace UI {
+
+    // Foramtting
     void printHeader(const std::string& title) {
         printDivider();
         std::cout << textSettings.color << " " << title << RESET << "\n";
@@ -46,5 +48,45 @@ namespace UI {
     void printBattleMessage(const std::string& msg) {
         std::cout << "\n" << RED << "[BATTLE]"<< RESET;
         typeText(msg);
+    }
+
+
+
+    // ASCII Art
+
+    void printTitle() {
+        std::cout << CYAN <<
+        loadStoryText("assets/ascii_title.txt") <<
+        RESET << "\n\n";
+    }
+
+    void printDragon() {
+        std::cout << RED <<
+        loadStoryText("assets/ascii_dragon.txt") <<
+        RESET << "\n";
+    }
+
+    void printCampfire() {
+        std::cout << YELLOW <<
+        loadStoryText("assets/ascii_campfire.txt") <<
+        RESET << "\n\n";
+    }
+
+    void printEnding(const std::string& type) {
+        std::cout << "\n";
+        
+        if (type == "ORDER") {
+            std::cout << CYAN <<
+            loadStoryText("assets/ascii_endingorder.txt") <<
+            RESET << "\n";
+        } else if (type == "CHAOS") {
+            std::cout << RED <<
+            loadStoryText("assets/ascii_endingchaos.txt") <<
+            RESET << "\n";
+        } else {
+            std::cout << GREEN <<
+            loadStoryText("assets/ascii_endingbalance.txt") <<
+            RESET << "\n";
+        }
     }
 };
