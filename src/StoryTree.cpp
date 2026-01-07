@@ -55,6 +55,19 @@ void StoryTree::runNode(StoryNode* node) {
         state.grimoire.openMenu();
     }
 
+    // ASCII Art
+    if (node->text == "story_text/campfire.txt") {
+        UI::printCampfire();
+    } else if (node->text == "story_text/dragon_battle.txt" || node->text == "story_text/dragon_voice.txt" || node->text == "story_text/dragon_choice.txt") {
+        UI::printDragon();
+    } else if (node->text == "story_text/ending_order.txt") {
+        UI::printEnding("ORDER");
+    } else if (node->text == "story_text/ending_chaos.txt") {
+        UI::printEnding("CHAOS");
+    } else if (node->text == "story_text/ending_balance.txt") {
+        UI::printEnding("BALANCE");
+    }
+
     string displayText = loadStoryText(node->text);
 
     int wordCount = state.grimoire.getWordCount();

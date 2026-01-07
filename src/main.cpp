@@ -9,7 +9,7 @@ void showMainMenu() {
     int choice;
 
     while (true) {
-        std::cout << CYAN << "\n=== SKJORHEIM ===\n";
+        UI::printTitle();
 
         std::vector<std::string> mainMenu;
         mainMenu.push_back("Start Game");
