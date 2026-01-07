@@ -273,7 +273,7 @@ StoryNode* StoryTree::buildStory() {
         "story_text/campfire.txt",
         "Meditate (Open Grimoire)", "Continue Journey",
         nullptr, pathChoice,
-        false, 0, false, 0
+        false, 0, false, 2
     };
 
     auto grimoireNode = new StoryNode {
@@ -282,6 +282,8 @@ StoryNode* StoryTree::buildStory() {
         campfire, campfire,
         false, 0, false, 2
     };
+
+    campfire->left = grimoireNode;
 
     auto runeStone = new StoryNode {
         "story_text/rune_stone.txt",

@@ -20,12 +20,15 @@ namespace UI {
         }
     }
 
-    void printMenu(const std::vector<std::string>& options) {
+    void printMenu(const std::vector<std::string>& options, bool choose) {
         std::cout << "\n";
         for (size_t i = 0; i < options.size(); i++) {
             std::cout << textSettings.color << (i + 1) << ". " << options[i] << RESET << "\n";
         }
-        std::cout << textSettings.color << "Choose: " << RESET;
+
+        if (choose) {
+            std::cout << textSettings.color << "Choose: " << RESET;
+        }
     }
 
     void printNarration(const std::string& text) {
