@@ -8,6 +8,11 @@
 #include <vector>
 
 BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
+    if (textSettings.devMode) {
+        UI::printSystemMessage(BOLD "[DEV MODE]" RESET "Skipping Battle...");
+        return BATTLE_WIN;
+    }
+
     bool battleOver = false;
     bool playerTurn = true;
     bool dragonNextAttackHeavy = false;

@@ -18,6 +18,7 @@ struct TextSettingsStruct {
     int speedMs = 25;
     std::string color = WHITE;
     bool skipTyping = false;
+    bool devMode = false;
 };
 
 // Global settings instance

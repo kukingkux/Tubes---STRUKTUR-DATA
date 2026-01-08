@@ -4,6 +4,7 @@
 #include "UI.h"
 #include <iostream>
 #include <vector>
+#include <cstring>
 
 void showMainMenu() {
     int choice;
@@ -70,7 +71,17 @@ void showMainMenu() {
     }
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    // Dev Mode
+    for (int i = 1; i < argc; i++) {
+        if (std::strcmp(argv[i], "-dev") == 0) {
+            textSettings.devMode = true;
+            textSettings.skipTyping = true;
+            UI::printSystemMessage("LAUNCHED WITH DEV MODE");
+        }
+    }
+
+    // Program
     GameState state;
 
     showMainMenu();

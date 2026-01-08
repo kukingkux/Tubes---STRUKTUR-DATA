@@ -26,7 +26,7 @@ void typeText(const string& text, int delayMs) {
     cout << textSettings.color;
 
     // Skip dialogue if enabled in settings
-    if (textSettings.skipTyping) {
+    if (textSettings.skipTyping || textSettings.devMode) {
         cout << text << RESET << "\n";
         return;
     }
