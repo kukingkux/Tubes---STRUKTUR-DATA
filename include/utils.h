@@ -1,11 +1,13 @@
 #ifndef UTILS_H_INCLUDED
 #define UTILS_H_INCLUDED
-
 #include <string>
 #include <iostream>
 
-// COLORS
+// FORMATS
+#define BOLD   "\033[1m"
 #define RESET   "\033[0m"
+
+// COLORS
 #define RED     "\033[31m"
 #define GREEN   "\033[32m"
 #define YELLOW  "\033[33m"
@@ -16,17 +18,18 @@ struct TextSettingsStruct {
     int speedMs = 25;
     std::string color = WHITE;
     bool skipTyping = false;
+    bool devMode = false;
 };
 
 // Global settings instance
 extern TextSettingsStruct textSettings;
 
-// Utility Functions
+// Utils
 void typeText(const std::string& text, int delayMs = 25);
 void clearInput();
 std::string loadStoryText(const std::string& filepath);
 
-// Battle/Output helper
-void damageOutput(int index, int damage, std::string enemy = "");
+// Battle
+std::string damageOutput(int index, int damage, std::string enemy = "");
 
-#endif // UTILS_H_INCLUDED
+#endif
