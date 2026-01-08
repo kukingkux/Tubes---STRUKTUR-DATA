@@ -1,9 +1,13 @@
 #include "StoryTree.h"
 #include "BattleSystem.h"
-#include "utils.h"
+#include "Utils.h"
+#include "UI.h"
 #include <string>
 #include <iostream>
-using namespace std;
+#include <vector>
+#include <limits>
+#include <fstream>
+#include <sstream>
 
 StoryTree::StoryTree(GameState& s) : state(s){
     root = buildStory();
@@ -48,7 +52,23 @@ void StoryTree::runNode(StoryNode* node) {
         state.grimoire.openMenu();
     }
 
-    string displayText = loadStoryText(node->text);
+    // ASCII Art
+    if (node->text == "story_text/campfire.txt") {
+        UI::printCampfire();
+    } else if (node->text == "story_text/dragon_battle.txt" || node->text == "story_text/dragon_voice.txt" || node->text == "story_text/dragon_choice.txt") {
+        UI::printDragon();
+    } else if (node->text == "story_text/ending_order.txt") {
+        UI::printEnding("ORDER");
+    } else if (node->text == "story_text/ending_chaos.txt") {
+        UI::printEnding("CHAOS");
+    } else if (node->text == "story_text/ending_balance.txt") {
+        UI::printEnding("BALANCE");
+    }
+
+    std::string displayText = loadStoryText(node->text);
+
+    int wordCount = state.grimoire.getWordCount();
+    bool upgraded = state.grimoire.hasUpgradedWords();
 
     int wordCount = state.grimoire.getWordCount();
     bool upgraded = state.grimoire.hasUpgradedWords();
@@ -65,12 +85,12 @@ void StoryTree::runNode(StoryNode* node) {
         if (wordCount > 0) {
             displayText += "\n\n(The Iron Lord eyes you suspiciously. He senses the Thuum within you.)";
         }
-    } else if (node->text == "story_text/whispering_woods.txt") {
+    }  else if (node->text == "story_text/whispering_woods.txt") {
         if (wordCount > 0) {
             displayText += "\n\n(The trees seem to lean closer, recognizing a speaker of the Old Tongue.)";
         }
     } else if (node->text == "story_text/dragon_battle.txt") {
-         if (wordCount == 0) {
+        if (wordCount == 0) {
             displayText += "\n\n(You stand before the beast, a voiceless prey.)";
         } else if (upgraded) {
             displayText += "\n\n(Your voice thrums with power. The Dragon acknowledges you as a rival.)";
@@ -79,7 +99,20 @@ void StoryTree::runNode(StoryNode* node) {
         }
     }
 
-    typeText("\n" + displayText + "\n");
+    // Dialogue Parsing
+    std::stringstream ss(displayText);
+    std::string line;
+    while(getline(ss, line, '\n')) {
+        if (line.empty()) continue;
+
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+
+        if (line.find("“") != std::string::npos || line.find("\"") != std::string::npos) {
+            UI::printDialogue("???", line);
+        } else {
+            UI::printNarration(line);
+        }
+    }
 
     if (node->hasBattle) {
         Enemy enemy;
@@ -96,31 +129,31 @@ void StoryTree::runNode(StoryNode* node) {
         BattleResult result = startBattle(state.health, enemy, state.grimoire);
 
         if (result == BATTLE_LOSE) {
-            typeText("\nYour heads ringing and your vision slowly fades to black...\n");
-            cout << "\n=== GAME OVER ===\n";
+            UI::printSystemMessage("Your heads ringing and your vision slowly fades to black...");
+            UI::printHeader("=== GAME OVER ===");
             exit(0);
         } else {
-            typeText(GREEN "\nVictory Achieved!\n" RESET);
+            UI::printSystemMessage("Victory Achieved!");
         }
     }
 
 
-    cout << "\n(Press Enter to continue)";
-    cin.get();
+    std::cout << "\n(Press Enter to continue)\n";
+    std::cin.get();
 
     if (node->isEnding) {
-        cout << "\n=== TO BE CONTINUED. . . ===\n";
+        UI::printHeader("=== TO BE CONTINUED. . . ===");
         return;
     }
-
-    cout << "1. " << node->choiceA << "\n";
-    cout << "2. " << node->choiceB << "\n";
-    cout << "Choose: ";
-
+    
+    std::vector<std::string> options;
+    options.push_back(node->choiceA);
+    options.push_back(node->choiceB);
+    UI::printMenu(options);
     int choice;
-    cin >> choice;
+    std::cin >> choice;
 
-    if (cin.fail()) {
+    if (std::cin.fail()) {
         clearInput();
         choice = 0;
     }
@@ -241,7 +274,7 @@ StoryNode* StoryTree::buildStory() {
         "story_text/campfire.txt",
         "Meditate (Open Grimoire)", "Continue Journey",
         nullptr, pathChoice,
-        false, 0, false, 0
+        false, 0, false, 2
     };
 
     auto grimoireNode = new StoryNode {
@@ -250,6 +283,8 @@ StoryNode* StoryTree::buildStory() {
         campfire, campfire,
         false, 0, false, 2
     };
+
+    campfire->left = grimoireNode;
 
     auto runeStone = new StoryNode {
         "story_text/rune_stone.txt",

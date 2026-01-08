@@ -1,19 +1,22 @@
 #include "StoryTree.h"
 #include "BattleSystem.h"
-#include "utils.h"
+#include "Utils.h"
+#include "UI.h"
 #include <iostream>
+#include <vector>
+#include <cstring>
 
 void showMainMenu() {
     int choice;
 
     while (true) {
-        std::cout << CYAN
-        << "\n=== SKJORHEIM ===\n"
-        << "1. Start Game\n"
-        << "2. Text Settings\n"
-        << "3. Exit\n"
-        << RESET
-        << "Choose: ";
+        UI::printTitle();
+
+        std::vector<std::string> mainMenu;
+        mainMenu.push_back("Start Game");
+        mainMenu.push_back("Text Settings");
+        mainMenu.push_back("Exit");
+        UI::printMenu(mainMenu);
 
         std::cin >> choice;
 
@@ -26,32 +29,39 @@ void showMainMenu() {
         if (choice == 1) break;
         if (choice == 2) {
             int c;
-            std::cout << "\nTyping Speed:\n"
-                    << "1. Fast\n"
-                    << "2. Normal\n"
-                    << "3. Slow\n"
-                    << "Choose: ";
+            
+            std::vector<std::string> speedOptions;
+            speedOptions.push_back("Fast");
+            speedOptions.push_back("Normal");
+            speedOptions.push_back("Slow");
+
+            std::cout << "\nTyping Speed:";
+            UI::printMenu(speedOptions);
             std::cin >> c;
 
             if (c == 1) textSettings.speedMs = 10;
             if (c == 2) textSettings.speedMs = 25;
             if (c == 3) textSettings.speedMs = 50;
 
-            std::cout << "\nText Color:\n"
-                    << "1. White\n"
-                    << "2. Cyan\n"
-                    << "3. Yellow\n"
-                    << "Choose: ";
+            std::vector<std::string> colorOptions;
+            speedOptions.push_back("White");
+            speedOptions.push_back("Cyan");
+            speedOptions.push_back("Yellow");
+
+            std::cout << "\nText Color:";
+            UI::printMenu(colorOptions);
             std::cin >> c;
 
             if (c == 1) textSettings.color = WHITE;
             if (c == 2) textSettings.color = CYAN;
             if (c == 3) textSettings.color = YELLOW;
 
-            std::cout << "\nSkip Typing?\n"
-                    << "1. Yes\n"
-                    << "2. No\n"
-                    << "Choose: ";
+            std::vector<std::string> skipOptions;
+            speedOptions.push_back("Yes");
+            speedOptions.push_back("No");
+
+            std::cout << "\nTyping Speed:";
+            UI::printMenu(skipOptions);
             std::cin >> c;
 
             textSettings.skipTyping = (c == 1);
@@ -61,7 +71,17 @@ void showMainMenu() {
     }
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    // Dev Mode
+    for (int i = 1; i < argc; i++) {
+        if (std::strcmp(argv[i], "-dev") == 0) {
+            textSettings.devMode = true;
+            textSettings.skipTyping = true;
+            UI::printSystemMessage("LAUNCHED WITH DEV MODE");
+        }
+    }
+
+    // Program
     GameState state;
 
     showMainMenu();
@@ -69,6 +89,6 @@ int main() {
     StoryTree story(state);
     story.start();
 
-    std::cout << "\nTerima kasih udah main :D\n";
+    UI::printSystemMessage("Terima kasih udah main :D");
     return 0;
 }
