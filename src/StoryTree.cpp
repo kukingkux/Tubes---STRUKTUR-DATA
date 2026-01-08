@@ -3,8 +3,6 @@
 #include "Utils.h"
 #include "UI.h"
 #include <string>
-#include <chrono>
-#include <thread>
 #include <iostream>
 #include <vector>
 #include <limits>
@@ -68,6 +66,9 @@ void StoryTree::runNode(StoryNode* node) {
     }
 
     std::string displayText = loadStoryText(node->text);
+
+    int wordCount = state.grimoire.getWordCount();
+    bool upgraded = state.grimoire.hasUpgradedWords();
 
     int wordCount = state.grimoire.getWordCount();
     bool upgraded = state.grimoire.hasUpgradedWords();
@@ -305,6 +306,8 @@ StoryNode* StoryTree::buildStory() {
         runeLearn, campfire,
         false, 0, false, 0 // No event yet
     };
+
+    campfire->right = pathChoice;
 
     // Wolf Battle
     auto wolfBattle = new StoryNode{
