@@ -17,6 +17,7 @@ struct GameState {
     bool joinedOrder = false;
     bool joinedScholars = false;
     bool helpedRebels = false;
+    bool canUpgradeWord = false;
 
     // CRUD: Words of Power
     Grimoire grimoire;
