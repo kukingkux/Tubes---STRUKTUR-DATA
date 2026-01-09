@@ -23,7 +23,8 @@ public:
     ~Grimoire(); // Destructor
 
     void learnWord(const std::string& name, const std::string& description, int power);
-    void openMenu(); // Menu for Read, Update, Delete
+    void openMenu(bool& canUpgrade); // Menu for Read, Update, Delete
+    void upgradeWord(int index, bool& canUpgrade); // Update
 
     int useWordInBattle();
 
@@ -35,7 +36,6 @@ private:
     GrimoireNode* head;
 
     void listWords() const; // Read
-    void upgradeWord(int index); // Update
     void forgetWord(int index); // Delete
 
     GrimoireNode* getNodeAt(int index) const;

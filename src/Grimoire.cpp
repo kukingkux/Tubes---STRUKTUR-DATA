@@ -47,7 +47,7 @@ bool Grimoire::hasUpgradedWords() const {
 }
 
 void Grimoire::learnWord(const std::string& name, const std::string& description, int power) {
-    WordOfPower newWord = {name, description, power};
+    WordOfPower newWord = {name, description, power, 1}; // Initialize level to 1
     GrimoireNode* newNode = new GrimoireNode(newWord);
     newNode->next = head;
     head = newNode;
@@ -86,11 +86,17 @@ GrimoireNode* Grimoire::getNodeAt(int index) const {
     return nullptr;
 }
 
-void Grimoire::upgradeWord(int index) {
+void Grimoire::upgradeWord(int index, bool& canUpgrade) {
+    if (!canUpgrade) {
+        UI::printSystemMessage(RED "You must find a place of power to deepen your understanding." RESET);
+        return;
+    }
+
     GrimoireNode* node = getNodeAt(index);
     if (node) {
         node->data.level++;
         node->data.power += 5;
+        canUpgrade = false; // Consume flag
         UI::printSystemMessage(BOLD "[UPGRADE]: " RESET + node->data.name + " is now level " + to_string(node->data.level));
     }
 }
@@ -147,7 +153,7 @@ int Grimoire::useWordInBattle() {
     return 0;
 }
 
-void Grimoire::openMenu() {
+void Grimoire::openMenu(bool& canUpgrade) {
     
     // Menu
     std::vector<std::string> grimoireMenu;
@@ -159,6 +165,10 @@ void Grimoire::openMenu() {
 
     while(true) {
         UI::printHeader(CYAN "  GRIMOIRE MANAGEMENT" RESET);
+        if (canUpgrade) {
+             UI::printSystemMessage(YELLOW "You feel the resonance of a Place of Power." RESET);
+        }
+
         UI::printMenu(grimoireMenu);
         int choice;
         cin >> choice;
@@ -185,7 +195,7 @@ void Grimoire::openMenu() {
             }
 
             if (idx > 0) {
-                upgradeWord(idx-1);
+                upgradeWord(idx-1, canUpgrade);
             }
         } else if (choice == 3) {
             listWords();
