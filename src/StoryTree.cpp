@@ -57,6 +57,39 @@ void StoryTree::runNode(StoryNode* node) {
             state.canUpgradeWord = true;
             UI::printSystemMessage(YELLOW "You feel a surge of ancient power. Your mind is ready to deepen its knowledge." RESET);
         }
+    } else if (node->eventId == 10) {
+        state.orderPoints += 3;
+        UI::printSystemMessage(CYAN "You have pledged yourself to Order. (Order +3)" RESET);
+    } else if (node->eventId == 11) {
+        state.chaosPoints += 3;
+        UI::printSystemMessage(RED "You embrace the whispers of the wild. (Chaos +3)" RESET);
+    } else if (node->eventId == 99) {
+        // Final Judgment
+        int diff = state.orderPoints - state.chaosPoints;
+
+        UI::printSystemMessage("Fate weighs your soul...");
+        std::cout << CYAN << "Order: " << state.orderPoints << RESET << " | " << RED << "Chaos: " << state.chaosPoints << RESET << "\n";
+
+        if (diff > 1) {
+            runNode(node->left); // Order Ending
+        } else if (diff < -1) {
+            runNode(node->right); // Chaos Ending
+        } else {
+            // Balance Ending (Handled directly)
+            UI::printEnding("BALANCE");
+            std::string text = loadStoryText("story_text/ending_balance.txt");
+
+            // Typewriter effect manually
+             std::stringstream ss(text);
+            std::string line;
+            while(getline(ss, line, '\n')) {
+                if (line.empty()) continue;
+                if (!line.empty() && line.back() == '\r') line.pop_back();
+                UI::printNarration(line);
+            }
+            UI::printHeader("=== TO BE CONTINUED. . . ===");
+        }
+        return;
     }
 
     // ASCII Art
@@ -189,25 +222,27 @@ StoryNode* StoryTree::buildStory() {
         "", "", nullptr, nullptr, false, 0, true, 0
     };
 
-    auto endingBalance = new StoryNode{
-        "story_text/ending_balance.txt",
-        "", "", nullptr, nullptr, false, 0, true, 0
+    // Judgment Router Node
+    auto judgmentNode = new StoryNode{
+        "", "", "",
+        endingOrder, endingChaos, // Left=Order, Right=Chaos
+        false, 0, false, 99
     };
 
     // === DRAGON ===
-    // Dragon Battle
+    // Dragon Battle (Victory leads to Judgment)
     auto dragonBattleNode = new StoryNode{
         "story_text/dragon_battle.txt",
-        "Continue", "Continue",
-        endingOrder, endingOrder,
+        "Face your destiny", "Face your destiny",
+        judgmentNode, judgmentNode,
         true, 3, false, 0
     };
 
-    // Listen Branch
+    // Listen Branch (Diplomacy leads to Judgment)
     auto listenBranch = new StoryNode{
         "story_text/listen_branch.txt",
-        "Accept the Chaos", "Seek Balance",
-        endingChaos, endingBalance,
+        "Face your destiny", "Face your destiny",
+        judgmentNode, judgmentNode,
         false, 0, false, 0
     };
 
@@ -260,19 +295,33 @@ StoryNode* StoryTree::buildStory() {
     };
 
     // === Story ===
+
+    // Intermediate Event Nodes for Points
+    auto orderEventNode = new StoryNode{
+        "", "", "",
+        dragonRouter1, dragonRouter1,
+        false, 0, false, 10 // Event 10: Order Points
+    };
+
+    auto chaosEventNode = new StoryNode{
+        "", "", "",
+        dragonRouter1, dragonRouter1,
+        false, 0, false, 11 // Event 11: Chaos Points
+    };
+
     // Factions
     auto ironVow = new StoryNode{
         "story_text/iron_vow.txt",
         "Pledge loyalty (Order +)", "Remain independent",
-        dragonRouter1, dragonRouter2,
+        orderEventNode, dragonRouter2, // Choice 1 -> Order Event
         false, 0, false, 0
     };
 
     auto whisperingWoods = new StoryNode{
         "story_text/whispering_woods.txt",
-        "Study the runes (Knowledge +)", "Ignore the heresy",
-        dragonRouter1, dragonRouter1,
-        false, 0, false, 6 // Event ID 6: Learn Second Word
+        "Study the runes (Chaos +)", "Ignore the heresy",
+        chaosEventNode, dragonRouter1, // Choice 1 -> Chaos Event (also triggers Learn Word event 6 on old node? wait)
+        false, 0, false, 6 // Event ID 6: Learn Second Word (happens on ARRIVAL to this node)
     };
 
     auto pathChoice = new StoryNode {
