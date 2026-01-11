@@ -20,6 +20,10 @@ namespace UI {
     void printTitle();
     void printDragon();
     void printCampfire();
+    void printWolf();
+    void printRuneStone();
+    void printFortress();
+    void printTouched();
     void printEnding(const std::string& ending);
 }
 

@@ -48,6 +48,8 @@ void StoryTree::runNode(StoryNode* node) {
 
     if (node->eventId == 1) {
         state.grimoire.learnWord("FUS", "Unleash Force", 10);
+    } else if (node->eventId == 6) {
+        state.grimoire.learnWord("FEIM", "Fade Away", 8);
     } else if (node->eventId == 2) {
         state.grimoire.openMenu(state.canUpgradeWord);
     } else if (node->eventId == 5) {
@@ -62,6 +64,14 @@ void StoryTree::runNode(StoryNode* node) {
         UI::printCampfire();
     } else if (node->text == "story_text/dragon_battle.txt" || node->text == "story_text/dragon_voice.txt" || node->text == "story_text/dragon_choice.txt") {
         UI::printDragon();
+    } else if (node->text == "story_text/wolf_battle.txt") {
+        UI::printWolf();
+    } else if (node->text == "story_text/rune_discovery.txt" || node->text == "story_text/rune_stone.txt") {
+        UI::printRuneStone();
+    } else if (node->text == "story_text/ancient_shrine.txt") {
+        UI::printTouched();
+    } else if (node->text == "story_text/iron_vow.txt") {
+        UI::printFortress();
     } else if (node->text == "story_text/ending_order.txt") {
         UI::printEnding("ORDER");
     } else if (node->text == "story_text/ending_chaos.txt") {
@@ -262,7 +272,7 @@ StoryNode* StoryTree::buildStory() {
         "story_text/whispering_woods.txt",
         "Study the runes (Knowledge +)", "Ignore the heresy",
         dragonRouter1, dragonRouter1,
-        false, 0, false, 0
+        false, 0, false, 6 // Event ID 6: Learn Second Word
     };
 
     auto pathChoice = new StoryNode {

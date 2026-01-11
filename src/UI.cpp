@@ -131,20 +131,44 @@ namespace UI {
         RESET << "\n\n";
     }
 
+    void printWolf() {
+        std::cout << RED <<
+        loadStoryText("assets/ascii_a-snarl-in-the-mist.txt") <<
+        RESET << "\n";
+    }
+
+    void printRuneStone() {
+        std::cout << CYAN <<
+        loadStoryText("assets/ascii_ancient-rune-stone_glowing-stone.txt") <<
+        RESET << "\n";
+    }
+
+    void printFortress() {
+        std::cout << WHITE <<
+        loadStoryText("assets/ascii_fortress-of-the-iron-vow.txt") <<
+        RESET << "\n";
+    }
+
+    void printTouched() {
+        std::cout << YELLOW <<
+        loadStoryText("assets/ascii_touched-by-the-word.txt") <<
+        RESET << "\n";
+    }
+
     void printEnding(const std::string& type) {
         std::cout << "\n";
         
         if (type == "ORDER") {
             std::cout << CYAN <<
-            loadStoryText("assets/ascii_endingorder.txt") <<
+            loadStoryText("assets/ascii_the-silence-of-order.txt") <<
             RESET << "\n";
         } else if (type == "CHAOS") {
             std::cout << RED <<
-            loadStoryText("assets/ascii_endingchaos.txt") <<
+            loadStoryText("assets/ascii_the-sky-tears-open.txt") <<
             RESET << "\n";
         } else {
             std::cout << GREEN <<
-            loadStoryText("assets/ascii_endingbalance.txt") <<
+            loadStoryText("assets/ascii_the-wind-howls-like-a-wounded-god.txt") <<
             RESET << "\n";
         }
     }
