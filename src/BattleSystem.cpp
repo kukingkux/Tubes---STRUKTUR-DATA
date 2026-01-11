@@ -13,6 +13,8 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
         return BATTLE_WIN;
     }
 
+    grimoire.resetCooldowns(); // Reset word usage at start of battle
+
     bool battleOver = false;
     bool playerTurn = true;
     bool dragonNextAttackHeavy = false;

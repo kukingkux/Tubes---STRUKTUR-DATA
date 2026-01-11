@@ -47,7 +47,7 @@ bool Grimoire::hasUpgradedWords() const {
 }
 
 void Grimoire::learnWord(const std::string& name, const std::string& description, int power) {
-    WordOfPower newWord = {name, description, power, 1};
+    WordOfPower newWord = {name, description, power, 1, false};
     GrimoireNode* newNode = new GrimoireNode(newWord);
     newNode->next = head;
     head = newNode;
@@ -64,8 +64,9 @@ void Grimoire::listWords() const {
     GrimoireNode* current = head;
     std::vector<std::string> grimoires;
     while (current != nullptr) {
+        std::string usedStatus = current->data.used ? RED " [USED]" RESET : GREEN " [READY]" RESET;
         std::string grimoire = current->data.name + "(Lvl " + to_string(current->data.level) + "): "
-            + current->data.description + BOLD " [Power: " + to_string(current->data.power) + "]" RESET;
+            + current->data.description + BOLD " [Power: " + to_string(current->data.power) + "]" RESET + usedStatus;
         grimoires.push_back(grimoire);
         current = current->next;
     }
@@ -146,11 +147,25 @@ int Grimoire::useWordInBattle() {
 
     GrimoireNode* node = getNodeAt(idx - 1);
     if (node) {
+        if (node->data.used) {
+            UI::printBattleMessage("You have already used " + node->data.name + " in this battle!");
+            return 0;
+        }
+
+        node->data.used = true;
         UI::printBattleMessage("You channel the energy of " + node->data.name + "...");
         return node->data.power;
     }
 
     return 0;
+}
+
+void Grimoire::resetCooldowns() {
+    GrimoireNode* current = head;
+    while (current != nullptr) {
+        current->data.used = false;
+        current = current->next;
+    }
 }
 
 void Grimoire::openMenu(bool& canUpgrade) {

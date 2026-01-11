@@ -8,6 +8,7 @@ struct WordOfPower {
     std::string description;
     int power;
     int level;
+    bool used;
 };
 
 struct GrimoireNode {
@@ -27,6 +28,7 @@ public:
     void upgradeWord(int index, bool& canUpgrade); // Update
 
     int useWordInBattle();
+    void resetCooldowns();
 
     bool isEmpty() const;
     int getWordCount() const;
