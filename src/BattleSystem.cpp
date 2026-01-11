@@ -7,7 +7,7 @@
 #include <limits>
 #include <vector>
 
-BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
+BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire, int& chaosPoints) {
     if (textSettings.devMode) {
         UI::printSystemMessage(BOLD "[DEV MODE]" RESET "Skipping Battle...");
         return BATTLE_WIN;
@@ -51,7 +51,9 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
                 int wordDamage = grimoire.useWordInBattle();
                 if (wordDamage > 0) {
                     damage = wordDamage;
+                    chaosPoints++; // Chaos +1 for using words
                     UI::printBattleMessage("You cast the Words of Power!");
+                    UI::printSystemMessage(RED "The chaotic energy of the Voice flows through you. (Chaos +1)" RESET);
                 } else {
                     UI::printBattleMessage("You fumbled the words...");
                 }

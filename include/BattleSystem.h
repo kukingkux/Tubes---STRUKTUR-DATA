@@ -17,6 +17,6 @@ struct Enemy {
     int type; // 1=Cultist, 2=Bandit/Wolf, 3=Dragon
 };
 
-BattleResult startBattle(int& playerHp, Enemy enemy, Grimoire& grimoire);
+BattleResult startBattle(int& playerHp, Enemy enemy, Grimoire& grimoire, int& chaosPoints);
 
 #endif

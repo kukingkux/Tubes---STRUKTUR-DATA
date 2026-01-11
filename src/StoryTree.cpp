@@ -57,12 +57,6 @@ void StoryTree::runNode(StoryNode* node) {
             state.canUpgradeWord = true;
             UI::printSystemMessage(YELLOW "You feel a surge of ancient power. Your mind is ready to deepen its knowledge." RESET);
         }
-    } else if (node->eventId == 10) {
-        state.orderPoints += 3;
-        UI::printSystemMessage(CYAN "You have pledged yourself to Order. (Order +3)" RESET);
-    } else if (node->eventId == 11) {
-        state.chaosPoints += 3;
-        UI::printSystemMessage(RED "You embrace the whispers of the wild. (Chaos +3)" RESET);
     } else if (node->eventId == 99) {
         // Final Judgment
         int diff = state.orderPoints - state.chaosPoints;
@@ -113,7 +107,10 @@ void StoryTree::runNode(StoryNode* node) {
         UI::printEnding("BALANCE");
     }
 
-    std::string displayText = loadStoryText(node->text);
+    std::string displayText = "";
+    if (!node->text.empty()) {
+        displayText = loadStoryText(node->text);
+    }
 
     int wordCount = state.grimoire.getWordCount();
     bool upgraded = state.grimoire.hasUpgradedWords();
@@ -171,7 +168,7 @@ void StoryTree::runNode(StoryNode* node) {
             enemy = {"Phalanx the Ancient Dragon", 100, 10, 20};
         }
 
-        BattleResult result = startBattle(state.health, enemy, state.grimoire);
+        BattleResult result = startBattle(state.health, enemy, state.grimoire, state.chaosPoints);
 
         if (result == BATTLE_LOSE) {
             UI::printSystemMessage("Your heads ringing and your vision slowly fades to black...");
@@ -204,8 +201,23 @@ void StoryTree::runNode(StoryNode* node) {
     }
 
     if (choice == 1) {
+        // Logic Points Hooks
+        if (node->text == "story_text/iron_vow.txt") {
+            state.orderPoints += 3;
+            UI::printSystemMessage(CYAN "You have pledged yourself to Order. (Order +3)" RESET);
+        } else if (node->text == "story_text/whispering_woods.txt") {
+            state.chaosPoints += 3;
+            UI::printSystemMessage(RED "You embrace the whispers of the wild. (Chaos +3)" RESET);
+        }
+
         runNode(node->left);
     } else {
+        // Logic Points Hooks
+        if (node->text == "story_text/whispering_woods.txt") {
+            state.orderPoints += 1;
+            UI::printSystemMessage(CYAN "You ignore the heresy and keep your mind clear. (Order +1)" RESET);
+        }
+
         runNode(node->right);
     }
 }
@@ -296,32 +308,44 @@ StoryNode* StoryTree::buildStory() {
 
     // === Story ===
 
-    // Intermediate Event Nodes for Points
-    auto orderEventNode = new StoryNode{
-        "", "", "",
-        dragonRouter1, dragonRouter1,
-        false, 0, false, 10 // Event 10: Order Points
+    // Pre-Battle Campfire (Loop for Upgrades)
+    auto preBattleCampfire = new StoryNode {
+        "story_text/campfire.txt",
+        "Meditate (Open Grimoire)", "Proceed to Dragon",
+        nullptr, dragonRouter1, // Left is set below (loop), Right=Dragon
+        false, 0, false, 0
     };
 
-    auto chaosEventNode = new StoryNode{
-        "", "", "",
-        dragonRouter1, dragonRouter1,
-        false, 0, false, 11 // Event 11: Chaos Points
+    auto preBattleGrimoire = new StoryNode {
+        "story_text/grimoire_node.txt",
+        "Return to Fire", "Return to Fire",
+        preBattleCampfire, preBattleCampfire,
+        false, 0, false, 2 // Event ID 2: Open Menu
+    };
+
+    preBattleCampfire->left = preBattleGrimoire;
+
+    // Ancient Shrine (Destination after factions)
+    auto ancientShrine = new StoryNode {
+        "story_text/ancient_shrine.txt",
+        "Make Camp", "Make Camp",
+        preBattleCampfire, preBattleCampfire, // Go to Pre-Battle Campfire
+        false, 0, false, 5 // Event ID 5: Upgrade Unlock
     };
 
     // Factions
     auto ironVow = new StoryNode{
         "story_text/iron_vow.txt",
         "Pledge loyalty (Order +)", "Remain independent",
-        orderEventNode, dragonRouter2, // Choice 1 -> Order Event
+        ancientShrine, ancientShrine, // Both go to Shrine
         false, 0, false, 0
     };
 
     auto whisperingWoods = new StoryNode{
         "story_text/whispering_woods.txt",
         "Study the runes (Chaos +)", "Ignore the heresy",
-        chaosEventNode, dragonRouter1, // Choice 1 -> Chaos Event (also triggers Learn Word event 6 on old node? wait)
-        false, 0, false, 6 // Event ID 6: Learn Second Word (happens on ARRIVAL to this node)
+        ancientShrine, ancientShrine, // Both go to Shrine
+        false, 0, false, 6 // Event ID 6: Learn Second Word
     };
 
     auto pathChoice = new StoryNode {
@@ -354,17 +378,10 @@ StoryNode* StoryTree::buildStory() {
         false, 0, false, 1
     };
 
-    auto ancientShrine = new StoryNode {
-        "story_text/ancient_shrine.txt",
-        "Return to Fire", "Return to Fire",
-        campfire, campfire,
-        false, 0, false, 5 // Event ID 5: Upgrade
-    };
-
     auto runeLearn = new StoryNode {
         "story_text/rune_stone.txt", // "You learned a word!"
-        "Campfire", "Visit Ancient Shrine",
-        campfire, ancientShrine,
+        "Campfire", "Campfire",
+        campfire, campfire,
         false, 0, false, 1 // Learn word here
     };
     
