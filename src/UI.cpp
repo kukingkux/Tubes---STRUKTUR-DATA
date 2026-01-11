@@ -2,7 +2,7 @@
 #include "Utils.h"
 #include <iostream>
 #include <iomanip>
-#include <conio.h>
+// #include <conio.h>
 
 namespace UI {
 
@@ -90,7 +90,8 @@ namespace UI {
 
             UI::printDivider();
             std::cout << "(Press key to choose options [1/2/3/4])\n\n";
-            input = _getch();
+            // input = _getch();
+            std::cin >> input;
             
             if (input == '1') {
                 if (textSettings.speedMs == 10) textSettings.speedMs = 25;

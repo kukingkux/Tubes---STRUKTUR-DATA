@@ -6,7 +6,7 @@
 #include <vector>
 #include <string>
 #include <cstring>
-#include <conio.h>
+// #include <conio.h>
 
 void showMainMenu() {
     char choice;
@@ -25,7 +25,8 @@ void showMainMenu() {
         UI::printDivider();
         std::cout << "(Press key to choose options [1/2/3])\n\n";
 
-        choice = _getch();
+        // choice = _getch();
+        std::cin >> choice;
 
         if (choice == '1') break;
         if (choice == '2') {

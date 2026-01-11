@@ -4,7 +4,7 @@
 #include <sstream>
 #include <chrono>
 #include <thread>
-#include <conio.h>
+// #include <conio.h>
 #include <limits>
 
 using namespace std;
@@ -19,9 +19,9 @@ void clearInput() {
 void typeText(const string& text, int delayMs) {
     if (text.empty()) return;
 
-    while (_kbhit()) {
-        _getch();
-    }
+    // while (_kbhit()) {
+    //    _getch();
+    // }
 
     cout << textSettings.color;
 
@@ -40,12 +40,12 @@ void typeText(const string& text, int delayMs) {
             this_thread::sleep_for(chrono::milliseconds(currentSpeed));
 
             // Check for Keyboard Input - Skip Dialogue
-            if (_kbhit()) {
-                // Consume keyboard input
-                _getch();
-                // Set speed to 0
-                currentSpeed = 0;
-            }
+            // if (_kbhit()) {
+            //    // Consume keyboard input
+            //    _getch();
+            //    // Set speed to 0
+            //    currentSpeed = 0;
+            // }
         }
     }
     cout << RESET << "\n";
