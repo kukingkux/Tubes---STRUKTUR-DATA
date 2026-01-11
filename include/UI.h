@@ -14,6 +14,7 @@ namespace UI {
     void printBattleStatus(int playerHP, int enemyHP, const std::string& enemyName);
     void printSystemMessage(const std::string& msg);
     void printBattleMessage(const std::string& msg);
+    void printTextSettings();
 
     // ASCII Art
     void printTitle();

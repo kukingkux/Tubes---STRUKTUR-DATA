@@ -70,7 +70,6 @@ BattleResult startBattle(int& playerHP, Enemy enemy, Grimoire& grimoire) {
         } else {
             // ENEMY TURN
             if (enemy.type == 3) {
-                // Dragon AI
                 int action = rand() % 100;
                 if (dragonNextAttackHeavy) {
                     int damage = enemy.maxDmg + 5 + (rand() % 5);

@@ -3,8 +3,6 @@
 #include "Utils.h"
 #include "UI.h"
 #include <string>
-#include <chrono>
-#include <thread>
 #include <iostream>
 #include <vector>
 #include <limits>
@@ -305,6 +303,8 @@ StoryNode* StoryTree::buildStory() {
         runeLearn, campfire,
         false, 0, false, 0 // No event yet
     };
+
+    campfire->right = pathChoice;
 
     // Wolf Battle
     auto wolfBattle = new StoryNode{

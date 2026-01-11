@@ -2,6 +2,7 @@
 #include "Utils.h"
 #include <iostream>
 #include <iomanip>
+#include <conio.h>
 
 namespace UI {
 
@@ -21,9 +22,8 @@ namespace UI {
     }
 
     void printMenu(const std::vector<std::string>& options, bool choose) {
-        std::cout << "\n";
         for (size_t i = 0; i < options.size(); i++) {
-            std::cout << textSettings.color << (i + 1) << ". " << options[i] << RESET << "\n";
+            std::cout << textSettings.color << "[" << (i + 1) << "] " << options[i] << RESET << "\n";
         }
 
         if (choose) {
@@ -56,6 +56,56 @@ namespace UI {
     void printBattleMessage(const std::string& msg) {
         std::cout << "\n" << RED << "[BATTLE]"<< RESET;
         typeText(msg);
+    }
+
+    void printTextSettings() {
+        char input;
+        while (true) {
+            UI::printHeader("TEXT SETTINGS");
+
+            // Typing Speed
+            if (textSettings.skipTyping == false) {
+                std::cout << "[1] Typing Speed: " << (textSettings.speedMs == 10 ? BOLD "Fast" RESET : "Fast")
+                            << " | " << (textSettings.speedMs == 25 ? BOLD "Normal" RESET : "Normal")
+                            << " | " << (textSettings.speedMs == 50 ? BOLD "Slow" RESET : "Slow") << "\n";
+            }
+
+            // Text Color
+            std::string colorName = "White";
+            std::string colorCode = WHITE;
+            if (textSettings.color == CYAN) {
+                colorName = "Cyan";
+                colorCode = CYAN;
+            } else if (textSettings.color == YELLOW) {
+                colorName = "Yellow";
+                colorCode = YELLOW;
+            }
+            std::cout << "[2] Text Color:   " << colorName << RESET << "\n";
+
+            // Skip Typing
+            std::cout << "[3] Skip Typing:  " << (textSettings.skipTyping ? BOLD "Yes" RESET : "No") << "\n";
+            
+            // Back To Main Menu
+            std::cout << "[4] Back to Main Menu \n";
+
+            UI::printDivider();
+            std::cout << "(Press key to choose options [1/2/3/4])\n\n";
+            input = _getch();
+            
+            if (input == '1') {
+                if (textSettings.speedMs == 10) textSettings.speedMs = 25;
+                else if (textSettings.speedMs == 25) textSettings.speedMs = 50;
+                else textSettings.speedMs = 10;
+            } else if (input == '2') {
+                if (textSettings.color == WHITE) textSettings.color = CYAN;
+                else if (textSettings.color == CYAN) textSettings.color = YELLOW;
+                else textSettings.color = WHITE;
+            } else if (input == '3') {
+                textSettings.skipTyping = !textSettings.skipTyping;
+            } else if (input == '4') {
+                return;
+            }
+        }
     }
 
 
